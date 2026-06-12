@@ -34,10 +34,11 @@ export interface MatchLineupPlayer extends Player {
   yellowCard: boolean;
   redCard: boolean;
   saves: number;
+  rating: number;
 }
 
 export interface TeamLineup {
-  formation: string;
+  formation: string; // e.g. "4-3-3"
   startingXI: MatchLineupPlayer[];
   substitutes: MatchLineupPlayer[];
 }
@@ -68,10 +69,10 @@ export interface GeneratedMatchStats {
 // Fallback generator if squad is missing
 function generateFallbackSquad(teamName: string): { coach: string; players: Player[] } {
   const positions: Array<'GK' | 'DEF' | 'MID' | 'FWD'> = [
-    'GK',
-    'DEF', 'DEF', 'DEF', 'DEF', 'DEF',
-    'MID', 'MID', 'MID', 'MID', 'MID',
-    'FWD', 'FWD', 'FWD', 'FWD'
+    'GK', 'GK', 'GK',
+    'DEF', 'DEF', 'DEF', 'DEF', 'DEF', 'DEF', 'DEF', 'DEF',
+    'MID', 'MID', 'MID', 'MID', 'MID', 'MID', 'MID', 'MID',
+    'FWD', 'FWD', 'FWD', 'FWD', 'FWD', 'FWD'
   ];
   const coach = "Coach " + teamName;
   const players = positions.map((pos, idx) => ({
@@ -82,18 +83,22 @@ function generateFallbackSquad(teamName: string): { coach: string; players: Play
   return { coach, players };
 }
 
+const FORMATIONS = ["4-3-3", "4-2-3-1", "3-4-3", "4-4-2", "3-5-2"];
+
 export function generateMatchStats(match: Match): GeneratedMatchStats {
   const rand = new SeededRandom(match.id);
 
-  // Get squads
   const homeSquad = squads[match.homeTeam] || generateFallbackSquad(match.homeTeam);
   const awaySquad = squads[match.awayTeam] || generateFallbackSquad(match.awayTeam);
 
-  // Parse scorers
   const homeParsedScorers = parseScorers(match.homeScorers);
   const awayParsedScorers = parseScorers(match.awayScorers);
 
-  // Create pool of players
+  const homeScore = match.homeScore ?? 0;
+  const awayScore = match.awayScore ?? 0;
+  const homeRedCount = match.homeRedCards ?? 0;
+  const awayRedCount = match.awayRedCards ?? 0;
+
   const buildTeamLineup = (
     squad: typeof homeSquad,
     parsedScorers: typeof homeParsedScorers
@@ -108,298 +113,233 @@ export function generateMatchStats(match: Match): GeneratedMatchStats {
         yellowCard: false,
         redCard: false,
         saves: 0,
+        rating: 6.0,
       });
     });
 
-    // Make sure actual goal scorers are in the roster
+    // Make sure goalscorers are in the roster
     parsedScorers.forEach(s => {
       const key = s.name.toLowerCase();
       if (!playersMap.has(key)) {
-        // Find existing player of same position (usually FWD or MID) to override, or add
         playersMap.set(key, {
           name: s.name,
           position: 'FWD',
-          number: rand.nextRange(14, 23),
+          number: rand.nextRange(7, 26),
           isStarting: true,
           goals: 0,
           assists: 0,
           yellowCard: false,
           redCard: false,
           saves: 0,
+          rating: 6.0,
         });
       }
-      const p = playersMap.get(key)!;
-      p.goals++;
+      playersMap.get(key)!.goals++;
     });
 
-    // Separate by position
     const allPlayers = Array.from(playersMap.values());
     const gks = allPlayers.filter(p => p.position === 'GK');
     const defs = allPlayers.filter(p => p.position === 'DEF');
     const mids = allPlayers.filter(p => p.position === 'MID');
     const fwds = allPlayers.filter(p => p.position === 'FWD');
 
-    // Starting lineup logic (4-4-2 default)
+    // Pick formation
+    const formationStr = rand.pick(FORMATIONS);
+    const [defC, midC, fwdC] = formationStr.split('-').map(Number);
+    // for 4-2-3-1 etc, sum the last bits
+    const finalDefC = defC;
+    const finalMidC = formationStr === "4-2-3-1" ? 5 : midC;
+    const finalFwdC = formationStr === "4-2-3-1" ? 1 : fwdC;
+
     const startingXI: MatchLineupPlayer[] = [];
     const substitutes: MatchLineupPlayer[] = [];
 
-    // Goalkeeper
+    // GK
     if (gks.length > 0) startingXI.push({ ...gks[0], isStarting: true });
     gks.slice(1).forEach(p => substitutes.push(p));
 
-    // Force goalscorers into starting list
-    const scorersInGroup = (group: MatchLineupPlayer[]) => {
-      const startingScorers = group.filter(p => p.goals > 0);
+    const distribute = (group: MatchLineupPlayer[], count: number) => {
+      const scorers = group.filter(p => p.goals > 0);
       const nonScorers = group.filter(p => p.goals === 0);
-      return { startingScorers, nonScorers };
+      const selected = [...scorers, ...rand.shuffle(nonScorers)].slice(0, count);
+      selected.forEach(p => { p.isStarting = true; startingXI.push(p); });
+      group.forEach(p => {
+        if (!startingXI.find(s => s.name === p.name)) substitutes.push(p);
+      });
     };
 
-    // Defenders (need 4)
-    const { startingScorers: homeDefScorers, nonScorers: homeDefNonScorers } = scorersInGroup(defs);
-    const startingDefs = [...homeDefScorers, ...rand.shuffle(homeDefNonScorers)].slice(0, 4);
-    startingDefs.forEach(p => { p.isStarting = true; startingXI.push(p); });
-    allPlayers.forEach(p => {
-      if (p.position === 'DEF' && !startingXI.some(s => s.name === p.name)) {
-        substitutes.push(p);
-      }
-    });
+    distribute(defs, finalDefC);
+    distribute(mids, finalMidC);
+    distribute(fwds, finalFwdC);
 
-    // Midfielders (need 4)
-    const { startingScorers: homeMidScorers, nonScorers: homeMidNonScorers } = scorersInGroup(mids);
-    const startingMids = [...homeMidScorers, ...rand.shuffle(homeMidNonScorers)].slice(0, 4);
-    startingMids.forEach(p => { p.isStarting = true; startingXI.push(p); });
-    allPlayers.forEach(p => {
-      if (p.position === 'MID' && !startingXI.some(s => s.name === p.name)) {
-        substitutes.push(p);
-      }
-    });
-
-    // Forwards (need 2)
-    const { startingScorers: homeFwdScorers, nonScorers: homeFwdNonScorers } = scorersInGroup(fwds);
-    const startingFwds = [...homeFwdScorers, ...rand.shuffle(homeFwdNonScorers)].slice(0, 2);
-    startingFwds.forEach(p => { p.isStarting = true; startingXI.push(p); });
-    allPlayers.forEach(p => {
-      if (p.position === 'FWD' && !startingXI.some(s => s.name === p.name)) {
-        substitutes.push(p);
-      }
-    });
-
-    return {
-      formation: "4-4-2",
-      startingXI,
-      substitutes,
-    };
+    return { formation: formationStr, startingXI, substitutes };
   };
 
   const homeLineup = buildTeamLineup(homeSquad, homeParsedScorers);
   const awayLineup = buildTeamLineup(awaySquad, awayParsedScorers);
 
-  // Determine timeline events
   const timeline: TimelineEvent[] = [];
 
-  // 1. Goals
-  homeParsedScorers.forEach(s => {
-    const min = parseInt(s.minute.replace("'", '')) || rand.nextRange(5, 85);
-    
-    // Choose assist provider (70% chance, from other midfielders/forwards)
-    let assistPlayer = "";
-    if (rand.next() < 0.70) {
-      const candidates = homeLineup.startingXI.filter(pl => pl.position !== 'GK' && pl.name !== s.name);
-      if (candidates.length > 0) {
-        const ass = rand.pick(candidates);
-        ass.assists++;
-        assistPlayer = ass.name;
+  // Helper to process goals & assists
+  const processGoals = (parsedScorers: typeof homeParsedScorers, lineup: TeamLineup, teamType: 'home' | 'away') => {
+    parsedScorers.forEach(s => {
+      const min = parseInt(s.minute.replace("'", '')) || rand.nextRange(5, 85);
+      
+      let assistPlayer = "";
+      if (rand.next() < 0.65) {
+        // Find someone else who is NOT the scorer and NOT the GK
+        const candidates = lineup.startingXI.filter(pl => pl.position !== 'GK' && pl.name.toLowerCase() !== s.name.toLowerCase());
+        if (candidates.length > 0) {
+          const ass = rand.pick(candidates);
+          ass.assists++;
+          assistPlayer = ass.name;
+        }
       }
-    }
 
-    timeline.push({
-      type: 'goal',
-      minute: min,
-      player: s.name,
-      detail: assistPlayer ? `Goal (Assist by ${assistPlayer})` : "Goal",
-      team: 'home'
+      timeline.push({
+        type: 'goal',
+        minute: min,
+        player: s.name,
+        detail: assistPlayer ? `Goal (Assist by ${assistPlayer})` : "Goal",
+        team: teamType
+      });
     });
-  });
+  };
 
-  awayParsedScorers.forEach(s => {
-    const min = parseInt(s.minute.replace("'", '')) || rand.nextRange(5, 85);
-    
-    let assistPlayer = "";
-    if (rand.next() < 0.70) {
-      const candidates = awayLineup.startingXI.filter(pl => pl.position !== 'GK' && pl.name !== s.name);
-      if (candidates.length > 0) {
-        const ass = rand.pick(candidates);
-        ass.assists++;
-        assistPlayer = ass.name;
-      }
-    }
+  processGoals(homeParsedScorers, homeLineup, 'home');
+  processGoals(awayParsedScorers, awayLineup, 'away');
 
-    timeline.push({
-      type: 'goal',
-      minute: min,
-      player: s.name,
-      detail: assistPlayer ? `Goal (Assist by ${assistPlayer})` : "Goal",
-      team: 'away'
-    });
-  });
-
-  // 2. Yellow & Red Cards
-  const maxYellows = rand.nextRange(1, 5);
-  for (let i = 0; i < maxYellows; i++) {
-    const isHome = rand.next() < 0.5;
-    const lineup = isHome ? homeLineup : awayLineup;
-    const p = rand.pick(lineup.startingXI.filter(pl => pl.position !== 'GK'));
-    if (p && !p.yellowCard) {
-      p.yellowCard = true;
-      const min = rand.nextRange(10, 89);
+  // Process Red Cards perfectly according to API
+  const processRedCards = (redCount: number, lineup: TeamLineup, teamType: 'home' | 'away') => {
+    const players = rand.shuffle(lineup.startingXI.filter(p => p.position !== 'GK')).slice(0, redCount);
+    players.forEach(p => {
+      p.redCard = true;
       timeline.push({
         type: 'card',
-        minute: min,
+        minute: rand.nextRange(20, 89),
+        player: p.name,
+        detail: "Red Card",
+        team: teamType
+      });
+    });
+  };
+  processRedCards(homeRedCount, homeLineup, 'home');
+  processRedCards(awayRedCount, awayLineup, 'away');
+
+  // Process Yellow Cards (ensure no reds get yellows)
+  const homeYellowsCount = rand.nextRange(1, 4);
+  const awayYellowsCount = rand.nextRange(1, 4);
+
+  const processYellows = (count: number, lineup: TeamLineup, teamType: 'home' | 'away') => {
+    const candidates = rand.shuffle(lineup.startingXI.filter(p => !p.redCard && p.position !== 'GK')).slice(0, count);
+    candidates.forEach(p => {
+      p.yellowCard = true;
+      timeline.push({
+        type: 'card',
+        minute: rand.nextRange(10, 89),
         player: p.name,
         detail: "Yellow Card",
-        team: isHome ? 'home' : 'away'
+        team: teamType
       });
+    });
+  };
+  processYellows(homeYellowsCount, homeLineup, 'home');
+  processYellows(awayYellowsCount, awayLineup, 'away');
+
+  // Subs
+  const processSubs = (lineup: TeamLineup, teamType: 'home' | 'away') => {
+    const subsCount = rand.nextRange(2, 5);
+    const availableSubs = [...lineup.substitutes];
+    for (let i = 0; i < subsCount; i++) {
+      if (availableSubs.length === 0) break;
+      const playerIn = availableSubs.shift()!;
+      const playerOutCandidates = lineup.startingXI.filter(pl => pl.position === playerIn.position && pl.position !== 'GK' && !pl.redCard);
+      if (playerOutCandidates.length > 0) {
+        const playerOut = rand.pick(playerOutCandidates);
+        timeline.push({
+          type: 'sub',
+          minute: rand.nextRange(55, 88),
+          player: playerIn.name,
+          detail: `In for ${playerOut.name}`,
+          team: teamType
+        });
+      }
     }
-  }
+  };
+  processSubs(homeLineup, 'home');
+  processSubs(awayLineup, 'away');
 
-  // 3. Substitutions (2-3 per team, second half)
-  const homeSubsCount = rand.nextRange(1, 3);
-  const homeAvailableSubs = [...homeLineup.substitutes];
-  for (let i = 0; i < homeSubsCount; i++) {
-    if (homeAvailableSubs.length === 0) break;
-    const playerIn = homeAvailableSubs.shift()!;
-    const playerOutCandidates = homeLineup.startingXI.filter(pl => pl.position === playerIn.position && pl.position !== 'GK');
-    if (playerOutCandidates.length > 0) {
-      const playerOut = rand.pick(playerOutCandidates);
-      const min = rand.nextRange(55, 88);
-      timeline.push({
-        type: 'sub',
-        minute: min,
-        player: playerIn.name,
-        detail: `In for ${playerOut.name}`,
-        team: 'home'
-      });
-    }
-  }
-
-  const awaySubsCount = rand.nextRange(1, 3);
-  const awayAvailableSubs = [...awayLineup.substitutes];
-  for (let i = 0; i < awaySubsCount; i++) {
-    if (awayAvailableSubs.length === 0) break;
-    const playerIn = awayAvailableSubs.shift()!;
-    const playerOutCandidates = awayLineup.startingXI.filter(pl => pl.position === playerIn.position && pl.position !== 'GK');
-    if (playerOutCandidates.length > 0) {
-      const playerOut = rand.pick(playerOutCandidates);
-      const min = rand.nextRange(55, 88);
-      timeline.push({
-        type: 'sub',
-        minute: min,
-        player: playerIn.name,
-        detail: `In for ${playerOut.name}`,
-        team: 'away'
-      });
-    }
-  }
-
-  // 4. Goalkeeper Saves
-  const homeGK = homeLineup.startingXI.find(pl => pl.position === 'GK');
-  const awayGK = awayLineup.startingXI.find(pl => pl.position === 'GK');
-
-  const homeSavesCount = rand.nextRange(2, 6);
-  const awaySavesCount = rand.nextRange(2, 6);
+  // Saves (Strictly GK only)
+  const homeGK = homeLineup.startingXI.find(p => p.position === 'GK');
+  const awayGK = awayLineup.startingXI.find(p => p.position === 'GK');
+  
+  const homeShotsOnTarget = homeScore + rand.nextRange(2, 6);
+  const awayShotsOnTarget = awayScore + rand.nextRange(2, 6);
+  
+  const homeSaves = awayShotsOnTarget - awayScore;
+  const awaySaves = homeShotsOnTarget - homeScore;
 
   if (homeGK) {
-    homeGK.saves = homeSavesCount;
-    for (let i = 0; i < 2; i++) { // show top 2 saves in timeline
-      timeline.push({
-        type: 'save',
-        minute: rand.nextRange(15, 85),
-        player: homeGK.name,
-        detail: "Crucial diving save",
-        team: 'home'
-      });
+    homeGK.saves = homeSaves;
+    if (homeSaves > 0) {
+      timeline.push({ type: 'save', minute: rand.nextRange(15, 85), player: homeGK.name, detail: "Crucial save", team: 'home' });
     }
   }
-
   if (awayGK) {
-    awayGK.saves = awaySavesCount;
-    for (let i = 0; i < 2; i++) {
-      timeline.push({
-        type: 'save',
-        minute: rand.nextRange(15, 85),
-        player: awayGK.name,
-        detail: "Superb reflex save",
-        team: 'away'
-      });
+    awayGK.saves = awaySaves;
+    if (awaySaves > 0) {
+      timeline.push({ type: 'save', minute: rand.nextRange(15, 85), player: awayGK.name, detail: "Superb save", team: 'away' });
     }
   }
 
-  // Sort timeline chronologically
   timeline.sort((a, b) => a.minute - b.minute);
 
-  // If live, filter events up to the current minute
   const isLive = match.status === 'LIVE';
   const currentMinute = match.minute ?? 0;
-  const filteredTimeline = isLive
-    ? timeline.filter(ev => ev.minute <= currentMinute)
-    : timeline;
+  const filteredTimeline = isLive ? timeline.filter(ev => ev.minute <= currentMinute) : timeline;
 
-  // Compile Match Stats
-  const homeScore = match.homeScore ?? 0;
-  const awayScore = match.awayScore ?? 0;
-  
-  // Possession matching scoreline slightly
+  // Calculate Match Ratings
+  const ratePlayers = (lineup: TeamLineup, oppScore: number) => {
+    [...lineup.startingXI, ...lineup.substitutes].forEach(p => {
+      let base = 6.0 + (rand.nextRange(-4, 4) / 10); // 5.6 to 6.4
+      
+      base += (p.goals * 1.2);
+      base += (p.assists * 0.8);
+      if (p.yellowCard) base -= 0.4;
+      if (p.redCard) base -= 1.5;
+      
+      if (p.position === 'GK' && oppScore === 0) base += 1.0;
+      if (p.position === 'DEF' && oppScore === 0) base += 0.8;
+      if (p.position === 'DEF' && oppScore >= 3) base -= 0.8;
+
+      p.rating = Math.max(3.0, Math.min(10.0, base));
+    });
+  };
+
+  ratePlayers(homeLineup, awayScore);
+  ratePlayers(awayLineup, homeScore);
+
   let homePossession = 50;
-  if (homeScore > awayScore) {
-    homePossession = rand.nextRange(48, 62);
-  } else if (awayScore > homeScore) {
-    homePossession = rand.nextRange(38, 52);
-  } else {
-    homePossession = rand.nextRange(45, 55);
-  }
-  const awayPossession = 100 - homePossession;
-
-  // Shots (Home vs Away)
-  const homeShots = homeScore * 3 + rand.nextRange(4, 12);
-  const awayShots = awayScore * 3 + rand.nextRange(4, 12);
-  const homeShotsOnTarget = homeScore + rand.nextRange(1, Math.floor(homeShots/2));
-  const awayShotsOnTarget = awayScore + rand.nextRange(1, Math.floor(awayShots/2));
-
-  // Count cards actually in filtered timeline
-  const homeYellows = filteredTimeline.filter(e => e.type === 'card' && e.team === 'home' && e.detail.includes("Yellow")).length;
-  const awayYellows = filteredTimeline.filter(e => e.type === 'card' && e.team === 'away' && e.detail.includes("Yellow")).length;
-  const homeReds = filteredTimeline.filter(e => e.type === 'card' && e.team === 'home' && e.detail.includes("Red")).length;
-  const awayReds = filteredTimeline.filter(e => e.type === 'card' && e.team === 'away' && e.detail.includes("Red")).length;
+  if (homeScore > awayScore) homePossession = rand.nextRange(52, 62);
+  else if (awayScore > homeScore) homePossession = rand.nextRange(38, 48);
+  else homePossession = rand.nextRange(45, 55);
 
   const makeStatItem = (label: string, homeVal: number, awayVal: number): MatchStatItem => {
     const total = homeVal + awayVal;
     const homePercent = total > 0 ? Math.round((homeVal / total) * 100) : 50;
     const awayPercent = total > 0 ? 100 - homePercent : 50;
-    return {
-      label,
-      home: homeVal,
-      away: awayVal,
-      homePercent,
-      awayPercent,
-    };
+    return { label, home: homeVal, away: awayVal, homePercent, awayPercent };
   };
 
   const statsList: MatchStatItem[] = [
-    {
-      label: "Possession",
-      home: `${homePossession}%`,
-      away: `${awayPossession}%`,
-      homePercent: homePossession,
-      awayPercent: awayPossession,
-    },
-    makeStatItem("Shots", homeShots, awayShots),
+    { label: "Possession", home: `${homePossession}%`, away: `${100 - homePossession}%`, homePercent: homePossession, awayPercent: 100 - homePossession },
+    makeStatItem("Shots", homeShotsOnTarget + rand.nextRange(2, 6), awayShotsOnTarget + rand.nextRange(2, 6)),
     makeStatItem("Shots on Target", homeShotsOnTarget, awayShotsOnTarget),
-    makeStatItem("Fouls", rand.nextRange(6, 16), rand.nextRange(6, 16)),
-    makeStatItem("Corners", rand.nextRange(2, 9), rand.nextRange(2, 9)),
-    makeStatItem("Offsides", rand.nextRange(0, 4), rand.nextRange(0, 4)),
-    makeStatItem("Goalkeeper Saves", awayShotsOnTarget - awayScore, homeShotsOnTarget - homeScore), // stats show saves against opponent's target shots
-    makeStatItem("Yellow Cards", homeYellows, awayYellows),
-    makeStatItem("Red Cards", homeReds, awayReds),
+    makeStatItem("Fouls", rand.nextRange(8, 15), rand.nextRange(8, 15)),
+    makeStatItem("Corners", rand.nextRange(2, 8), rand.nextRange(2, 8)),
+    makeStatItem("Goalkeeper Saves", homeSaves, awaySaves),
+    makeStatItem("Yellow Cards", homeYellowsCount, awayYellowsCount),
+    makeStatItem("Red Cards", homeRedCount, awayRedCount),
   ];
 
   return {

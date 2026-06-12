@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { X, Clock, MapPin, Award, Shield, ArrowDownUp } from 'lucide-react';
 import { useWC2026Store, parseScorers } from '../../store/wc2026Store';
-import { generateMatchStats, GeneratedMatchStats } from '../../lib/matchStatsGenerator';
+import { generateMatchStats, GeneratedMatchStats, TeamLineup, MatchLineupPlayer } from '../../lib/matchStatsGenerator';
 import { PlayerAvatar } from '../layout/PlayerAvatar';
 
 const STADIUMS: Record<number, string> = {
@@ -96,54 +96,153 @@ function InfoRow({ icon, text }: { icon: React.ReactNode; text: string }) {
   );
 }
 
-function LineupsTab({ stats }: { stats: GeneratedMatchStats }) {
-  const renderXI = (teamType: 'home' | 'away') => {
-    const lineup = teamType === 'home' ? stats.home : stats.away;
+function FormationPitch({ home, away }: { home: TeamLineup, away: TeamLineup }) {
+  // Map formation string to rows, e.g. "4-2-3-1" -> [1, 4, 2, 3, 1]
+  const parseFormation = (fmt: string) => [1, ...fmt.split('-').map(Number)];
+
+  const homeRows = parseFormation(home.formation);
+  const awayRows = parseFormation(away.formation);
+
+  // Group players by row
+  const groupPlayers = (lineup: TeamLineup, rows: number[]) => {
+    const players = [...lineup.startingXI];
+    const grouped: MatchLineupPlayer[][] = [];
+    rows.forEach(count => {
+      grouped.push(players.splice(0, count));
+    });
+    return grouped; // [ [GK], [DEF...], [MID...], [FWD...] ]
+  };
+
+  const homeGrouped = groupPlayers(home, homeRows);
+  const awayGrouped = groupPlayers(away, awayRows);
+
+  const renderPlayerChip = (p: MatchLineupPlayer) => {
+    // Determine color coding for rating
+    let ratingColor = 'bg-yellow-500'; // 6.0 - 7.0
+    if (p.rating >= 7.5) ratingColor = 'bg-green-500';
+    else if (p.rating < 5.5) ratingColor = 'bg-red-500';
+
     return (
-      <div className="flex flex-col gap-3 flex-1 min-w-0">
-        <span className="text-[10px] font-black uppercase tracking-wider text-white/35 border-b border-white/5 pb-1">
-          {teamType === 'home' ? 'Home' : 'Away'} XI ({lineup.formation})
-        </span>
-        <div className="flex flex-col gap-1.5">
-          {lineup.startingXI.map(p => (
-            <div key={p.number} className="flex items-center gap-1.5 text-xs truncate">
-              <span className="font-mono text-[10px] font-bold text-[var(--accent-gold)] w-4 text-center shrink-0">
-                {p.number}
-              </span>
-              <PlayerAvatar name={p.name} size="xs" />
-              <span className="font-medium truncate flex-1 text-white/90">{p.name}</span>
-              <span className="text-[9px] uppercase font-bold text-white/25 shrink-0 px-1 bg-white/5 rounded">
-                {p.position}
-              </span>
+      <div key={p.name} className="flex flex-col items-center justify-center relative w-12 group">
+        <div className="relative">
+          <PlayerAvatar name={p.name} size="sm" />
+          {/* Rating Badge */}
+          <div className={`absolute -bottom-1 -right-1 w-5 h-3.5 flex items-center justify-center rounded-[3px] text-[8px] font-black shadow-sm text-white ${ratingColor}`}>
+            {p.rating.toFixed(1)}
+          </div>
+          {/* Card/Goal indicators */}
+          {(p.goals > 0 || p.redCard || p.yellowCard || p.assists > 0) && (
+            <div className="absolute -top-1 -right-1 flex gap-0.5">
+              {p.goals > 0 && <span className="text-[10px]" title="Goal">⚽</span>}
+              {p.redCard && <div className="w-2 h-3 bg-red-600 rounded-sm shadow-sm" />}
+              {p.yellowCard && !p.redCard && <div className="w-2 h-3 bg-amber-400 rounded-sm shadow-sm" />}
             </div>
-          ))}
+          )}
         </div>
-        <span className="text-[10px] font-black uppercase tracking-wider text-white/35 border-b border-white/5 pb-1 mt-2">
-          Substitutes
-        </span>
-        <div className="flex flex-col gap-1.5">
-          {lineup.substitutes.slice(0, 5).map(p => (
-            <div key={p.number} className="flex items-center gap-1.5 text-xs text-white/60 truncate">
-              <span className="font-mono text-[10px] font-bold text-[var(--accent-gold)] w-4 text-center shrink-0">
-                {p.number}
-              </span>
-              <PlayerAvatar name={p.name} size="xs" />
-              <span className="truncate flex-1">{p.name}</span>
-              <span className="text-[9px] uppercase text-white/20 shrink-0 px-1 bg-white/5 rounded">
-                {p.position}
-              </span>
-            </div>
-          ))}
+        <div className="mt-1 flex flex-col items-center">
+          <span className="text-[9px] font-black text-white drop-shadow-md truncate w-14 text-center">
+            {p.name.split(' ').pop()}
+          </span>
+        </div>
+      </div>
+    );
+  };
+
+  const renderHalf = (grouped: MatchLineupPlayer[][], isHome: boolean) => {
+    // Home attacks down (renders top to center). Away attacks up (bottom to center).
+    // The pitch height is 100%. Half is 50%.
+    return (
+      <div className={`absolute left-0 right-0 h-1/2 flex flex-col justify-between ${isHome ? 'top-0' : 'bottom-0 flex-col-reverse'}`} style={{ padding: '4% 0' }}>
+        {grouped.map((row, rIdx) => (
+          <div key={rIdx} className="flex justify-around items-center w-full px-4">
+            {row.map(p => renderPlayerChip(p))}
+          </div>
+        ))}
+      </div>
+    );
+  };
+
+  return (
+    <div className="relative w-full aspect-[2/3] max-h-[500px] bg-[#2a5d34] rounded-lg overflow-hidden border-2 border-white/20 shadow-inner flex shrink-0">
+      {/* Pitch Lines */}
+      {/* Outer boundary */}
+      <div className="absolute inset-2 border-2 border-white/30 rounded-sm pointer-events-none" />
+      
+      {/* Center Line */}
+      <div className="absolute top-1/2 left-2 right-2 h-[2px] bg-white/30 -translate-y-1/2 pointer-events-none" />
+      {/* Center Circle */}
+      <div className="absolute top-1/2 left-1/2 w-20 h-20 border-2 border-white/30 rounded-full -translate-x-1/2 -translate-y-1/2 pointer-events-none" />
+      {/* Center Dot */}
+      <div className="absolute top-1/2 left-1/2 w-1.5 h-1.5 bg-white/40 rounded-full -translate-x-1/2 -translate-y-1/2 pointer-events-none" />
+
+      {/* Top Penalty Box */}
+      <div className="absolute top-2 left-1/2 w-[50%] h-[15%] border-2 border-t-0 border-white/30 -translate-x-1/2 pointer-events-none" />
+      <div className="absolute top-2 left-1/2 w-[25%] h-[6%] border-2 border-t-0 border-white/30 -translate-x-1/2 pointer-events-none" />
+      <div className="absolute top-[17%] left-1/2 w-12 h-6 border-2 border-white/30 rounded-b-full -translate-x-1/2 pointer-events-none" style={{ clipPath: 'polygon(0 50%, 100% 50%, 100% 100%, 0 100%)', top: '14%' }} />
+
+      {/* Bottom Penalty Box */}
+      <div className="absolute bottom-2 left-1/2 w-[50%] h-[15%] border-2 border-b-0 border-white/30 -translate-x-1/2 pointer-events-none" />
+      <div className="absolute bottom-2 left-1/2 w-[25%] h-[6%] border-2 border-b-0 border-white/30 -translate-x-1/2 pointer-events-none" />
+      <div className="absolute bottom-[17%] left-1/2 w-12 h-6 border-2 border-white/30 rounded-t-full -translate-x-1/2 pointer-events-none" style={{ clipPath: 'polygon(0 0, 100% 0, 100% 50%, 0 50%)', bottom: '14%' }} />
+
+      {/* Players */}
+      {renderHalf(homeGrouped, true)}
+      {renderHalf(awayGrouped, false)}
+    </div>
+  );
+}
+
+function BenchList({ home, away }: { home: TeamLineup, away: TeamLineup }) {
+  const renderRow = (p: MatchLineupPlayer) => {
+    let ratingColor = 'text-yellow-400';
+    if (p.rating >= 7.5) ratingColor = 'text-green-400';
+    else if (p.rating < 5.5) ratingColor = 'text-red-400';
+
+    return (
+      <div key={p.name} className="flex items-center gap-2 py-1 border-b border-white/5 last:border-0">
+        <PlayerAvatar name={p.name} size="xs" />
+        <div className="flex flex-col flex-1 min-w-0">
+          <span className="text-xs font-medium text-white/90 truncate">{p.name}</span>
+          <div className="flex items-center gap-1.5 text-[9px] text-white/40">
+            <span>{p.position}</span>
+            {p.goals > 0 && <span className="text-[10px]">⚽</span>}
+            {p.assists > 0 && <span>+1 Ast</span>}
+          </div>
+        </div>
+        <div className={`text-[10px] font-black ${ratingColor} bg-white/5 px-1.5 py-0.5 rounded`}>
+          {p.rating.toFixed(1)}
         </div>
       </div>
     );
   };
 
   return (
-    <div className="flex gap-4 p-1">
-      {renderXI('home')}
-      <div className="w-[1px] bg-white/5 shrink-0" />
-      {renderXI('away')}
+    <div className="flex flex-col mt-4 bg-white/5 rounded-xl p-3 border border-white/10">
+      <div className="text-center font-black uppercase text-[10px] text-white/40 mb-3 tracking-widest">Substitutes</div>
+      <div className="flex gap-4">
+        <div className="flex-1 flex flex-col gap-1 min-w-0">
+          <div className="text-[10px] font-bold text-white/60 mb-1 border-b border-white/10 pb-1 text-center">Home</div>
+          {home.substitutes.slice(0, 7).map(renderRow)}
+        </div>
+        <div className="w-[1px] bg-white/10 shrink-0" />
+        <div className="flex-1 flex flex-col gap-1 min-w-0">
+          <div className="text-[10px] font-bold text-white/60 mb-1 border-b border-white/10 pb-1 text-center">Away</div>
+          {away.substitutes.slice(0, 7).map(renderRow)}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function LineupsTab({ stats }: { stats: GeneratedMatchStats }) {
+  return (
+    <div className="flex flex-col gap-2 p-2">
+      <div className="flex justify-between items-center px-2 mb-1">
+        <div className="text-[10px] font-black tracking-widest text-white/50 uppercase">Home ({stats.home.formation})</div>
+        <div className="text-[10px] font-black tracking-widest text-white/50 uppercase">Away ({stats.away.formation})</div>
+      </div>
+      <FormationPitch home={stats.home} away={stats.away} />
+      <BenchList home={stats.home} away={stats.away} />
     </div>
   );
 }
