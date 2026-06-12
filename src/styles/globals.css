@@ -17,15 +17,25 @@ html, body {
   overflow: hidden;
 }
 
+/* Default (full) mode: rich glass card */
 #root {
   background: rgba(10, 11, 15, var(--app-bg-opacity, 0.90));
-  border: 1px solid rgba(245, 184, 0, 0.15); /* Sleek gold border matching the trophy theme */
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.7), 0 0 15px rgba(245, 184, 0, 0.06); /* Premium golden glow */
+  border: 1px solid rgba(245, 184, 0, 0.15);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.7), 0 0 15px rgba(245, 184, 0, 0.06);
   backdrop-filter: blur(28px) saturate(160%);
   -webkit-backdrop-filter: blur(28px) saturate(160%);
   height: 100%;
   border-radius: 12px;
   overflow: hidden;
+}
+
+/* Compact mode: truly transparent host, widget draws its own BG */
+#root[data-compact="true"] {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
 }
 
 /* Prevent text selection and apply premium Outfit font globally */
@@ -35,4 +45,30 @@ html, body {
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
+}
+
+/* Custom scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 3px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(245, 184, 0, 0.2);
+  border-radius: 9999px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(245, 184, 0, 0.4);
+}
+
+/* Skeleton shimmer for loading placeholders */
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.skeleton-shimmer {
+  background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.04) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
 }

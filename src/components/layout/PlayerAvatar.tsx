@@ -8,8 +8,9 @@ interface PlayerAvatarProps {
 }
 
 function getInitials(name: string): string {
-  if (!name) return '?';
+  if (!name || typeof name !== 'string') return '?';
   const parts = name.trim().split(/\s+/);
+  if (parts.length === 0) return '?';
   if (parts.length === 1) {
     return parts[0].slice(0, 2).toUpperCase();
   }
@@ -21,10 +22,6 @@ function getInitials(name: string): string {
 }
 
 function getAvatarColor(name: string): string {
-  let hash = 0;
-  for (let i = 0; i < name.length; i++) {
-    hash = name.charCodeAt(i) + ((hash << 5) - hash);
-  }
   const gradients = [
     'from-blue-600 to-indigo-950',
     'from-emerald-600 to-teal-950',
@@ -33,12 +30,18 @@ function getAvatarColor(name: string): string {
     'from-amber-600 to-yellow-950',
     'from-cyan-600 to-blue-950',
   ];
+  if (!name || typeof name !== 'string') return gradients[0];
+  let hash = 0;
+  for (let i = 0; i < name.length; i++) {
+    hash = name.charCodeAt(i) + ((hash << 5) - hash);
+  }
   const index = Math.abs(hash) % gradients.length;
   return gradients[index];
 }
 
-export const PlayerAvatar: React.FC<PlayerAvatarProps> = ({ name, className = '', size = 'md' }) => {
-  const photoUrl = getPlayerPhoto(name);
+export const PlayerAvatar: React.FC<PlayerAvatarProps> = ({ name = '', className = '', size = 'md' }) => {
+  const safeName = typeof name === 'string' ? name : '';
+  const photoUrl = safeName ? getPlayerPhoto(safeName) : null;
   const [hasError, setHasError] = useState(!photoUrl);
 
   const sizeClasses = {
@@ -48,8 +51,8 @@ export const PlayerAvatar: React.FC<PlayerAvatarProps> = ({ name, className = ''
     lg: 'w-14 h-14 text-[18px]',
   };
 
-  const initials = getInitials(name);
-  const gradient = getAvatarColor(name);
+  const initials = getInitials(safeName);
+  const gradient = getAvatarColor(safeName);
 
   return (
     <div
@@ -60,7 +63,7 @@ export const PlayerAvatar: React.FC<PlayerAvatarProps> = ({ name, className = ''
       {!hasError && photoUrl ? (
         <img
           src={photoUrl}
-          alt={name}
+          alt={safeName}
           className="w-full h-full object-cover object-top scale-110"
           onError={() => setHasError(true)}
         />

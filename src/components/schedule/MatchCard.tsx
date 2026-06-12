@@ -45,14 +45,14 @@ export function MatchCard({ match }: { match: Match }) {
     <div 
       className={`p-3 mb-2 rounded-xl transition-all ${
         isTBD 
-          ? 'opacity-60 cursor-not-allowed' 
+          ? 'opacity-70 cursor-default' 
           : 'hover:bg-white/5 hover:border-white/20 group cursor-pointer'
       }`}
       style={{
         background: 'var(--bg-glass)',
         border: '1px solid var(--border-glass)',
       }}
-      onClick={() => !isTBD && setSelectedMatch(match)}
+      onClick={isTBD ? undefined : () => setSelectedMatch(match)}
     >
       <div className="text-[10px] text-[var(--text-muted)] mb-2 flex justify-between uppercase tracking-wider group-hover:text-white/60 transition-colors">
         <span>{subtitle}</span>

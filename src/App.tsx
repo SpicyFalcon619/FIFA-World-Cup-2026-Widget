@@ -9,6 +9,50 @@ import { useWC2026Store } from './store/wc2026Store';
 import { MatchDetailSheet } from './components/schedule/MatchDetailSheet';
 import { TeamDetailSheet } from './components/schedule/TeamDetailSheet';
 import { useUpdater } from './hooks/useUpdater';
+import { getCurrentWindow, LogicalSize } from '@tauri-apps/api/window';
+import { Maximize2, X } from 'lucide-react';
+
+const appWindow = getCurrentWindow();
+
+function CompactOverlay({ onExpand }: { onExpand: () => void }) {
+  const handlePointerDown = (e: React.PointerEvent) => {
+    const target = e.target as HTMLElement;
+    if (target.tagName !== 'BUTTON' && !target.closest('button')) {
+      appWindow.startDragging();
+    }
+  };
+
+  return (
+    <div
+      className="relative w-full h-full"
+      onPointerDown={handlePointerDown}
+    >
+      {/* The widget content */}
+      <CompactLiveWidget />
+
+      {/* Floating controls - top-right corner */}
+      <div
+        className="absolute top-1.5 right-1.5 flex items-center gap-0.5 z-50 opacity-0 hover:opacity-100 transition-opacity duration-200"
+        style={{ pointerEvents: 'auto' }}
+      >
+        <button
+          onClick={onExpand}
+          title="Expand"
+          className="w-5 h-5 rounded-full flex items-center justify-center text-white/50 hover:text-[var(--accent-gold)] hover:bg-white/10 transition-colors"
+        >
+          <Maximize2 size={9} />
+        </button>
+        <button
+          onClick={() => appWindow.hide()}
+          title="Hide"
+          className="w-5 h-5 rounded-full flex items-center justify-center text-white/50 hover:text-red-400 hover:bg-white/10 transition-colors"
+        >
+          <X size={9} />
+        </button>
+      </div>
+    </div>
+  );
+}
 
 function App() {
   useTauriEvents();
@@ -16,6 +60,7 @@ function App() {
 
   const setTimezone = useWC2026Store(s => s.setTimezone);
   const compactMode = useWC2026Store(s => s.compactMode);
+  const setCompactMode = useWC2026Store(s => s.setCompactMode);
   const bgOpacity = useWC2026Store(s => s.bgOpacity);
 
   useEffect(() => {
@@ -34,15 +79,24 @@ function App() {
   }, [setTimezone]);
 
   useEffect(() => {
-    import('@tauri-apps/api/window').then(({ getCurrentWindow, LogicalSize }) => {
-      const appWindow = getCurrentWindow();
-      if (compactMode) {
-        appWindow.setSize(new LogicalSize(340, 160));
-      } else {
-        appWindow.setSize(new LogicalSize(380, 680));
-      }
-    }).catch(console.error);
+    document.getElementById('root')?.setAttribute('data-compact', compactMode ? 'true' : 'false');
+    if (compactMode) {
+      appWindow.setSize(new LogicalSize(300, 140));
+    } else {
+      appWindow.setSize(new LogicalSize(380, 680));
+    }
   }, [compactMode]);
+
+  if (compactMode) {
+    return (
+      <div
+        className="w-full h-screen overflow-hidden"
+        style={{ background: 'transparent' }}
+      >
+        <CompactOverlay onExpand={() => setCompactMode(false)} />
+      </div>
+    );
+  }
 
   return (
     // This outer div is the full window. position:relative here so overlays
@@ -50,16 +104,10 @@ function App() {
     // scrolling sub-container.
     <div className="flex flex-col h-screen w-full bg-transparent overflow-hidden text-[var(--text-primary)] relative">
       <TitleBar />
-      {compactMode ? (
-        <div id="compact-widget-container" className="flex-1 w-full h-full relative">
-          <CompactLiveWidget />
-        </div>
-      ) : (
-        <>
-          <PanelContainer />
-          <NavBar />
-        </>
-      )}
+      <>
+        <PanelContainer />
+        <NavBar />
+      </>
 
       {/* Global overlays — rendered at App root so they NEVER scroll with panel content */}
       <MatchDetailSheet />
