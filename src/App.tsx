@@ -8,9 +8,11 @@ import { invoke } from '@tauri-apps/api/core';
 import { useWC2026Store } from './store/wc2026Store';
 import { MatchDetailSheet } from './components/schedule/MatchDetailSheet';
 import { TeamDetailSheet } from './components/schedule/TeamDetailSheet';
+import { useUpdater } from './hooks/useUpdater';
 
 function App() {
   useTauriEvents();
+  const { updateAvailable, promptInstall } = useUpdater();
 
   const setTimezone = useWC2026Store(s => s.setTimezone);
   const compactMode = useWC2026Store(s => s.compactMode);
@@ -62,6 +64,19 @@ function App() {
       {/* Global overlays — rendered at App root so they NEVER scroll with panel content */}
       <MatchDetailSheet />
       <TeamDetailSheet />
+
+      {/* Update Banner */}
+      {updateAvailable && (
+        <div className="absolute bottom-16 left-1/2 -translate-x-1/2 w-[90%] bg-[var(--accent-gold)] text-black font-semibold text-[11px] px-3 py-2 rounded-lg shadow-lg flex items-center justify-between z-[100] animate-in fade-in slide-in-from-bottom-2">
+          <span>Update {updateAvailable.version} available!</span>
+          <button 
+            onClick={() => promptInstall(updateAvailable)}
+            className="bg-black/10 hover:bg-black/20 transition-colors px-2 py-1 rounded text-black font-bold uppercase text-[9px] tracking-wider"
+          >
+            Install
+          </button>
+        </div>
+      )}
     </div>
   );
 }

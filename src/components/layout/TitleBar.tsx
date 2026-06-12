@@ -1,15 +1,13 @@
-import { Pin, X, Minus, Layers, PictureInPicture2, Maximize2, RefreshCw } from 'lucide-react';
+import { Pin, X, Minus, Layers, PictureInPicture2, Maximize2 } from 'lucide-react';
 import { getCurrentWindow } from '@tauri-apps/api/window';
 import { useWindowLayer } from '../../hooks/useWindowLayer';
 import { useWC2026Store } from '../../store/wc2026Store';
-import { useUpdater } from '../../hooks/useUpdater';
 
 const appWindow = getCurrentWindow();
 
 export function TitleBar() {
   const [windowLayer, cycleLayer] = useWindowLayer();
   const { compactMode, setCompactMode, bgOpacity, setBgOpacity } = useWC2026Store();
-  const { isChecking, checkForUpdates } = useUpdater();
 
   const handlePointerDown = (e: React.PointerEvent) => {
     // Only start dragging if the target is NOT an interactive element
@@ -34,14 +32,6 @@ export function TitleBar() {
       </div>
       
       <div className="flex items-center gap-1 z-50">
-        <button 
-          onClick={checkForUpdates}
-          disabled={isChecking}
-          className={`p-1.5 rounded-md transition-colors text-[var(--text-muted)] hover:text-white hover:bg-white/10 ${isChecking ? 'opacity-50 cursor-wait' : ''}`}
-          title="Check for Updates"
-        >
-          <RefreshCw size={14} className={isChecking ? "animate-spin" : ""} />
-        </button>
         <button 
           onClick={() => setCompactMode(!compactMode)}
           className={`p-1.5 rounded-md transition-colors ${compactMode ? 'text-[var(--accent-gold)] bg-white/10' : 'text-[var(--text-muted)] hover:bg-white/10'}`}
