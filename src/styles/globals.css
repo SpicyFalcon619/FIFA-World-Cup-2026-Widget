@@ -18,16 +18,19 @@ html, body {
 }
 
 #root {
-  background: rgba(14, 16, 22, var(--app-bg-opacity, 0.90));
+  background: rgba(10, 11, 15, var(--app-bg-opacity, 0.90));
+  border: 1px solid rgba(245, 184, 0, 0.15); /* Sleek gold border matching the trophy theme */
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.7), 0 0 15px rgba(245, 184, 0, 0.06); /* Premium golden glow */
   backdrop-filter: blur(28px) saturate(160%);
   -webkit-backdrop-filter: blur(28px) saturate(160%);
   height: 100%;
-  border-radius: 8px;
+  border-radius: 12px;
   overflow: hidden;
 }
 
-/* Prevent text selection throughout the widget */
+/* Prevent text selection and apply premium Outfit font globally */
 * {
+  font-family: 'Outfit', sans-serif !important;
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;

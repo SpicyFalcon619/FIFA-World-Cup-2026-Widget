@@ -37,7 +37,7 @@ jobs:
           TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
         with:
           tagName: ${{ github.ref_name }}
-          releaseName: "WC2026 Widget ${{ github.ref_name }}"
+          releaseName: "World Cup Widget 26 ${{ github.ref_name }}"
           releaseBody: "See the assets to download and install this version."
           releaseDraft: false
           prerelease: false

@@ -1,17 +1,26 @@
 import { useState, useMemo } from 'react';
 import { useWC2026Store, parseScorers } from '../../store/wc2026Store';
-import { Target, TrendingUp, Shield, AlertTriangle } from 'lucide-react';
+import { Target, TrendingUp, Shield } from 'lucide-react';
 import { generateMatchStats } from '../../lib/matchStatsGenerator';
+import { PlayerAvatar } from '../layout/PlayerAvatar';
 
+const YellowCardIcon = () => (
+  <div className="w-2 h-3 bg-amber-400 rounded-[1px] shadow-sm shrink-0" />
+);
+
+const RedCardIcon = () => (
+  <div className="w-2 h-3 bg-red-500 rounded-[1px] shadow-sm shrink-0" />
+);
 
 const STAT_TABS = [
   { key: 'goals' as const, label: 'Goals', icon: <Target size={11} /> },
   { key: 'assists' as const, label: 'Assists', icon: <TrendingUp size={11} /> },
-  { key: 'cards' as const, label: 'Cards', icon: <AlertTriangle size={11} /> },
+  { key: 'yellows' as const, label: 'Yellows', icon: <YellowCardIcon /> },
+  { key: 'reds' as const, label: 'Reds', icon: <RedCardIcon /> },
   { key: 'saves' as const, label: 'Saves', icon: <Shield size={11} /> },
 ];
 
-type StatKey = 'goals' | 'assists' | 'cards' | 'saves';
+type StatKey = 'goals' | 'assists' | 'yellows' | 'reds' | 'saves';
 
 function StatRow({ rank, player, team, flag, count, label }: {
   rank: number; player: string; team: string; flag: string; count: number; label: string;
@@ -21,21 +30,24 @@ function StatRow({ rank, player, team, flag, count, label }: {
   return (
     <div
       onClick={() => setSelectedTeam(team)}
-      className="flex items-center gap-3 p-3 rounded-xl transition-colors hover:bg-white/5 cursor-pointer"
+      className="flex items-center gap-3 p-2.5 rounded-xl transition-colors hover:bg-white/5 cursor-pointer"
       style={{ background: 'var(--bg-glass)', border: '1px solid var(--border-glass)' }}
     >
-      <span className="text-sm font-mono font-bold text-white/25 w-4 text-center shrink-0">{rank}</span>
-      {flag
-        ? <img src={flag} alt={team} className="w-8 h-8 object-contain drop-shadow-md shrink-0" />
-        : <div className="w-8 h-6 rounded-md bg-white/10 shrink-0" />
-      }
+      <span className="text-xs font-mono font-bold text-white/25 w-4 text-center shrink-0">{rank}</span>
+      
+      <PlayerAvatar name={player} size="sm" />
+      
       <div className="flex flex-col flex-1 min-w-0">
-        <span className="font-semibold text-sm truncate">{player}</span>
-        <span className="text-[10px] uppercase tracking-wider text-[var(--text-muted)] truncate">{team}</span>
+        <span className="font-semibold text-xs truncate text-white/95">{player}</span>
+        <div className="flex items-center gap-1 mt-0.5 min-w-0">
+          {flag && <img src={flag} alt={team} className="w-3.5 h-2.5 object-contain shrink-0 rounded-[1px]" />}
+          <span className="text-[9px] uppercase tracking-wider text-[var(--text-muted)] truncate">{team}</span>
+        </div>
       </div>
-      <div className="flex flex-col items-center shrink-0 min-w-[40px]">
-        <span className="text-xl font-black text-[var(--accent-gold)] tabular-nums">{count}</span>
-        <span className="text-[9px] uppercase text-white/25 tracking-wider">{label}</span>
+      
+      <div className="flex flex-col items-center shrink-0 min-w-[36px]">
+        <span className="text-lg font-black text-[var(--accent-gold)] tabular-nums leading-none">{count}</span>
+        <span className="text-[8px] uppercase text-white/25 tracking-wider mt-0.5">{label}</span>
       </div>
     </div>
   );
@@ -68,10 +80,16 @@ export function TopScorersList() {
   const tournamentStats = useMemo(() => {
     const goalsMap: Record<string, { team: string; count: number }> = {};
     const assistsMap: Record<string, { team: string; count: number }> = {};
-    const cardsMap: Record<string, { team: string; count: number }> = {};
+    const yellowsMap: Record<string, { team: string; count: number }> = {};
+    const redsMap: Record<string, { team: string; count: number }> = {};
     const savesMap: Record<string, { team: string; count: number }> = {};
 
     matches.filter(m => m.status === 'FINISHED').forEach(m => {
+      // Avoid crash if selected match is TBD
+      const isTBD = !m.homeTeam || !m.awayTeam || m.homeTeam === 'TBD' || m.awayTeam === 'TBD' ||
+                    /winner|runner|group|tbd/i.test(m.homeTeam) || /winner|runner|group|tbd/i.test(m.awayTeam);
+      if (isTBD) return;
+
       const matchDetails = generateMatchStats(m);
 
       // 1. Goals (Accurate to API)
@@ -112,23 +130,25 @@ export function TopScorersList() {
         savesMap[aGK.name].count += aGK.saves;
       }
 
-      // 4. Cards (Yellow = 1 pt, Red = 3 pts)
+      // 4. Yellow & Red Cards
       matchDetails.home.startingXI.concat(matchDetails.home.substitutes).forEach(p => {
-        let weight = 0;
-        if (p.yellowCard) weight += 1;
-        if (p.redCard) weight += 3;
-        if (weight > 0) {
-          if (!cardsMap[p.name]) cardsMap[p.name] = { team: m.homeTeam, count: 0 };
-          cardsMap[p.name].count += weight;
+        if (p.yellowCard) {
+          if (!yellowsMap[p.name]) yellowsMap[p.name] = { team: m.homeTeam, count: 0 };
+          yellowsMap[p.name].count++;
+        }
+        if (p.redCard) {
+          if (!redsMap[p.name]) redsMap[p.name] = { team: m.homeTeam, count: 0 };
+          redsMap[p.name].count++;
         }
       });
       matchDetails.away.startingXI.concat(matchDetails.away.substitutes).forEach(p => {
-        let weight = 0;
-        if (p.yellowCard) weight += 1;
-        if (p.redCard) weight += 3;
-        if (weight > 0) {
-          if (!cardsMap[p.name]) cardsMap[p.name] = { team: m.awayTeam, count: 0 };
-          cardsMap[p.name].count += weight;
+        if (p.yellowCard) {
+          if (!yellowsMap[p.name]) yellowsMap[p.name] = { team: m.awayTeam, count: 0 };
+          yellowsMap[p.name].count++;
+        }
+        if (p.redCard) {
+          if (!redsMap[p.name]) redsMap[p.name] = { team: m.awayTeam, count: 0 };
+          redsMap[p.name].count++;
         }
       });
     });
@@ -143,7 +163,8 @@ export function TopScorersList() {
     return {
       goals: formatAndSort(goalsMap),
       assists: formatAndSort(assistsMap),
-      cards: formatAndSort(cardsMap),
+      yellows: formatAndSort(yellowsMap),
+      reds: formatAndSort(redsMap),
       saves: formatAndSort(savesMap),
     };
   }, [matches, teamFlagMap, matchTeamMap]);
@@ -154,7 +175,8 @@ export function TopScorersList() {
     switch (activeTab) {
       case 'goals': return "No goals scored yet.";
       case 'assists': return "No assists recorded yet.";
-      case 'cards': return "No cards issued yet.";
+      case 'yellows': return "No yellow cards issued yet.";
+      case 'reds': return "No red cards issued yet.";
       case 'saves': return "No saves made yet.";
       default: return "No data available.";
     }
@@ -164,7 +186,8 @@ export function TopScorersList() {
     switch (activeTab) {
       case 'goals': return "goals";
       case 'assists': return "assists";
-      case 'cards': return "points";
+      case 'yellows': return "yellows";
+      case 'reds': return "reds";
       case 'saves': return "saves";
       default: return "";
     }
@@ -173,12 +196,12 @@ export function TopScorersList() {
   return (
     <div className="flex flex-col gap-3">
       {/* Tab switcher */}
-      <div className="flex gap-1 bg-black/20 p-1 rounded-lg">
+      <div className="flex gap-0.5 bg-black/20 p-0.5 rounded-lg">
         {STAT_TABS.map(tab => (
           <button
             key={tab.key}
             onClick={() => setActiveTab(tab.key)}
-            className={`flex-1 flex items-center justify-center gap-1.5 py-1.5 text-[10px] font-bold tracking-wider rounded-md transition-colors ${
+            className={`flex-1 flex items-center justify-center gap-1.5 py-1 px-0.5 text-[9px] font-bold tracking-wider rounded-md transition-colors ${
               activeTab === tab.key
                 ? 'bg-[var(--bg-glass)] text-white shadow-sm'
                 : 'text-[var(--text-muted)] hover:text-white'

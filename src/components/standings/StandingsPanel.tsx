@@ -26,7 +26,7 @@ export function StandingsPanel() {
               tab === 'SCORERS' ? 'bg-[var(--bg-glass)] text-white shadow-sm' : 'text-[var(--text-muted)] hover:text-white'
             }`}
           >
-            SCORERS
+            STATS
           </button>
         </div>
 

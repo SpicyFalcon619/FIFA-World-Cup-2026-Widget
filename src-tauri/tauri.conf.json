@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2.0.0",
-  "productName": "WC2026 Widget",
+  "productName": "World Cup Widget 26",
   "version": "0.1.0",
   "identifier": "com.wc2026.widget",
   "build": {
@@ -40,7 +40,7 @@
   "plugins": {
     "updater": {
       "endpoints": [
-        "https://github.com/SpicyFalcon619/FIFA-World-Cup-2026-Widget/releases/download/latest/latest.json"
+        "https://github.com/SpicyFalcon619/FIFA-World-Cup-2026-Widget/releases/latest/download/latest.json"
       ],
       "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDM0N0U0NUEzQUJFRTEzNDIKUldSQ0UrNnJvMFYrTkx3czYwaXZSYWFQRzF1c2ZtRlY1bFFxT2d2c2JNc2E2K0NRK2sxMDNFU2EK"
     }
@@ -55,6 +55,12 @@
       "icons/128x128@2x.png",
       "icons/icon.icns",
       "icons/icon.ico"
-    ]
+    ],
+    "windows": {
+      "nsis": {
+        "installMode": "perUser",
+        "oneClick": true
+      }
+    }
   }
 }

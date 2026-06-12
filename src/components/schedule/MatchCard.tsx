@@ -26,6 +26,13 @@ export function MatchCard({ match }: { match: Match }) {
   const homeName = match.homeTeam || 'TBD';
   const awayName = match.awayTeam || 'TBD';
 
+  const isTBD = !match.homeTeam || 
+                !match.awayTeam || 
+                match.homeTeam === 'TBD' || 
+                match.awayTeam === 'TBD' ||
+                /winner|runner|group|tbd/i.test(match.homeTeam) || 
+                /winner|runner|group|tbd/i.test(match.awayTeam);
+
   const stageText = formatStage(match.stage);
   const groupText = match.stage === 'GROUP' ? `Group ${match.group}` : '';
   const subtitle = [match.stage === 'GROUP' ? groupText : '', stageText].filter(Boolean).join(' · ');
@@ -34,21 +41,24 @@ export function MatchCard({ match }: { match: Match }) {
   const awayGoals = match.status === 'FINISHED' ? parseScorers(match.awayScorers) : [];
   const hasScorers = homeGoals.length > 0 || awayGoals.length > 0;
 
-
   return (
     <div 
-      className={`p-3 mb-2 rounded-xl transition-all hover:bg-white/5 hover:border-white/20 group cursor-pointer`}
+      className={`p-3 mb-2 rounded-xl transition-all ${
+        isTBD 
+          ? 'opacity-60 cursor-not-allowed' 
+          : 'hover:bg-white/5 hover:border-white/20 group cursor-pointer'
+      }`}
       style={{
         background: 'var(--bg-glass)',
         border: '1px solid var(--border-glass)',
       }}
-      onClick={() => setSelectedMatch(match)}
+      onClick={() => !isTBD && setSelectedMatch(match)}
     >
       <div className="text-[10px] text-[var(--text-muted)] mb-2 flex justify-between uppercase tracking-wider group-hover:text-white/60 transition-colors">
         <span>{subtitle}</span>
         <div className="flex items-center gap-1">
           {match.status === 'FINISHED' && <span className="text-white/40">FT</span>}
-          <ChevronRight size={10} className="text-white/20 group-hover:text-white/50 transition-colors" />
+          {!isTBD && <ChevronRight size={10} className="text-white/20 group-hover:text-white/50 transition-colors" />}
         </div>
       </div>
       

@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { X, Clock, MapPin, Award, Shield, ArrowDownUp } from 'lucide-react';
 import { useWC2026Store, parseScorers } from '../../store/wc2026Store';
 import { generateMatchStats, GeneratedMatchStats } from '../../lib/matchStatsGenerator';
+import { PlayerAvatar } from '../layout/PlayerAvatar';
 
 const STADIUMS: Record<number, string> = {
   1: 'SoFi Stadium · Los Angeles',
@@ -57,6 +58,21 @@ function GoalLine({ name, minute, align }: { name: string; minute: string; align
 }
 
 function TeamBlock({ flag, name, onClick }: { flag: string; name: string; onClick: () => void }) {
+  const isTBD = !name || name === 'TBD' || /winner|runner|group|tbd/i.test(name);
+  
+  if (isTBD) {
+    return (
+      <div className="flex flex-col items-center gap-2 flex-1 opacity-60">
+        {flag ? (
+          <img src={flag} alt={name} className="w-14 h-14 object-contain drop-shadow-xl" />
+        ) : (
+          <div className="w-14 h-10 rounded-md bg-white/10" />
+        )}
+        <span className="text-sm font-bold text-center leading-tight">{name}</span>
+      </div>
+    );
+  }
+
   return (
     <button
       onClick={onClick}
@@ -94,6 +110,7 @@ function LineupsTab({ stats }: { stats: GeneratedMatchStats }) {
               <span className="font-mono text-[10px] font-bold text-[var(--accent-gold)] w-4 text-center shrink-0">
                 {p.number}
               </span>
+              <PlayerAvatar name={p.name} size="xs" />
               <span className="font-medium truncate flex-1 text-white/90">{p.name}</span>
               <span className="text-[9px] uppercase font-bold text-white/25 shrink-0 px-1 bg-white/5 rounded">
                 {p.position}
@@ -110,6 +127,7 @@ function LineupsTab({ stats }: { stats: GeneratedMatchStats }) {
               <span className="font-mono text-[10px] font-bold text-[var(--accent-gold)] w-4 text-center shrink-0">
                 {p.number}
               </span>
+              <PlayerAvatar name={p.name} size="xs" />
               <span className="truncate flex-1">{p.name}</span>
               <span className="text-[9px] uppercase text-white/20 shrink-0 px-1 bg-white/5 rounded">
                 {p.position}
@@ -177,12 +195,15 @@ function TimelineTab({ stats }: { stats: GeneratedMatchStats }) {
         return (
           <div 
             key={idx} 
-            className={`flex items-start gap-3 text-xs ${isHome ? '' : 'flex-row-reverse text-right'}`}
+            className={`flex items-center gap-2.5 text-xs ${isHome ? '' : 'flex-row-reverse text-right'}`}
           >
             {/* Minute indicator */}
             <span className="font-mono text-[10px] font-black text-[var(--accent-gold)] w-7 shrink-0 text-center bg-white/5 py-0.5 rounded">
               {event.minute}'
             </span>
+
+            {/* Player Avatar */}
+            <PlayerAvatar name={event.player} size="xs" />
 
             {/* Icon & Event Details */}
             <div className={`flex flex-col flex-1 min-w-0 ${isHome ? 'items-start' : 'items-end'}`}>
@@ -222,12 +243,20 @@ export function MatchDetailSheet() {
 
   if (!selectedMatch) return null;
 
-  // Generate deterministic stats & lineups
-  const matchStats = useMemo(() => {
-    return generateMatchStats(selectedMatch);
-  }, [selectedMatch.id, selectedMatch.status, selectedMatch.minute, selectedMatch.homeScore, selectedMatch.awayScore]);
+  const isTBD = !selectedMatch.homeTeam || 
+                !selectedMatch.awayTeam || 
+                selectedMatch.homeTeam === 'TBD' || 
+                selectedMatch.awayTeam === 'TBD' ||
+                /winner|runner|group|tbd/i.test(selectedMatch.homeTeam) || 
+                /winner|runner|group|tbd/i.test(selectedMatch.awayTeam);
 
-  const hasTimelineAndStats = selectedMatch.status === 'FINISHED' || selectedMatch.status === 'LIVE';
+  // Generate deterministic stats & lineups if not TBD
+  const matchStats = useMemo(() => {
+    if (isTBD) return null;
+    return generateMatchStats(selectedMatch);
+  }, [selectedMatch.id, selectedMatch.status, selectedMatch.minute, selectedMatch.homeScore, selectedMatch.awayScore, isTBD]);
+
+  const hasTimelineAndStats = !isTBD && (selectedMatch.status === 'FINISHED' || selectedMatch.status === 'LIVE');
 
   const stadium = STADIUMS[selectedMatch.stadiumId] ?? `Stadium ${selectedMatch.stadiumId}`;
   const kickoff = parseKickoff(selectedMatch.utcKickoff);
@@ -305,7 +334,7 @@ export function MatchDetailSheet() {
                   onClick={() => { setSelectedMatch(null); setTimeout(() => setSelectedTeam(selectedMatch.homeTeam), 150); }}
                 />
                 <div className="flex flex-col items-center gap-1.5 min-w-[80px]">
-                  {selectedMatch.status === 'FINISHED' || selectedMatch.status === 'LIVE' ? (
+                  {(selectedMatch.status === 'FINISHED' || selectedMatch.status === 'LIVE') && !isTBD ? (
                     <>
                       <span className="text-3xl font-black tracking-tight tabular-nums">
                         {selectedMatch.homeScore ?? 0} – {selectedMatch.awayScore ?? 0}
@@ -330,58 +359,60 @@ export function MatchDetailSheet() {
             </div>
 
             {/* Tab Selector */}
-            <div className="flex gap-1 bg-black/20 p-1 mx-4 rounded-lg">
-              <button
-                onClick={() => setActiveTab('overview')}
-                className={`flex-1 py-1 text-[10px] font-bold tracking-wider rounded-md transition-colors ${
-                  activeTab === 'overview'
-                    ? 'bg-[var(--bg-glass)] text-white shadow-sm'
-                    : 'text-[var(--text-muted)] hover:text-white'
-                }`}
-              >
-                OVERVIEW
-              </button>
-              <button
-                onClick={() => setActiveTab('lineups')}
-                className={`flex-1 py-1 text-[10px] font-bold tracking-wider rounded-md transition-colors ${
-                  activeTab === 'lineups'
-                    ? 'bg-[var(--bg-glass)] text-white shadow-sm'
-                    : 'text-[var(--text-muted)] hover:text-white'
-                }`}
-              >
-                LINEUPS
-              </button>
-              {hasTimelineAndStats && (
-                <>
-                  <button
-                    onClick={() => setActiveTab('stats')}
-                    className={`flex-1 py-1 text-[10px] font-bold tracking-wider rounded-md transition-colors ${
-                      activeTab === 'stats'
-                        ? 'bg-[var(--bg-glass)] text-white shadow-sm'
-                        : 'text-[var(--text-muted)] hover:text-white'
-                    }`}
-                  >
-                    STATS
-                  </button>
-                  <button
-                    onClick={() => setActiveTab('timeline')}
-                    className={`flex-1 py-1 text-[10px] font-bold tracking-wider rounded-md transition-colors ${
-                      activeTab === 'timeline'
-                        ? 'bg-[var(--bg-glass)] text-white shadow-sm'
-                        : 'text-[var(--text-muted)] hover:text-white'
-                    }`}
-                  >
-                    TIMELINE
-                  </button>
-                </>
-              )}
-            </div>
+            {!isTBD && (
+              <div className="flex gap-1 bg-black/20 p-1 mx-4 rounded-lg">
+                <button
+                  onClick={() => setActiveTab('overview')}
+                  className={`flex-1 py-1 text-[10px] font-bold tracking-wider rounded-md transition-colors ${
+                    activeTab === 'overview'
+                      ? 'bg-[var(--bg-glass)] text-white shadow-sm'
+                      : 'text-[var(--text-muted)] hover:text-white'
+                  }`}
+                >
+                  OVERVIEW
+                </button>
+                <button
+                  onClick={() => setActiveTab('lineups')}
+                  className={`flex-1 py-1 text-[10px] font-bold tracking-wider rounded-md transition-colors ${
+                    activeTab === 'lineups'
+                      ? 'bg-[var(--bg-glass)] text-white shadow-sm'
+                      : 'text-[var(--text-muted)] hover:text-white'
+                  }`}
+                >
+                  LINEUPS
+                </button>
+                {hasTimelineAndStats && (
+                  <>
+                    <button
+                      onClick={() => setActiveTab('stats')}
+                      className={`flex-1 py-1 text-[10px] font-bold tracking-wider rounded-md transition-colors ${
+                        activeTab === 'stats'
+                          ? 'bg-[var(--bg-glass)] text-white shadow-sm'
+                          : 'text-[var(--text-muted)] hover:text-white'
+                      }`}
+                    >
+                      STATS
+                    </button>
+                    <button
+                      onClick={() => setActiveTab('timeline')}
+                      className={`flex-1 py-1 text-[10px] font-bold tracking-wider rounded-md transition-colors ${
+                        activeTab === 'timeline'
+                          ? 'bg-[var(--bg-glass)] text-white shadow-sm'
+                          : 'text-[var(--text-muted)] hover:text-white'
+                      }`}
+                    >
+                      TIMELINE
+                    </button>
+                  </>
+                )}
+              </div>
+            )}
 
             {/* Tab Contents */}
             <div className="p-4 max-h-[48vh] overflow-y-auto overscroll-contain custom-scrollbar">
               {activeTab === 'overview' && (
                 <div className="flex flex-col gap-4">
-                  {hasGoals && (
+                  {hasGoals && !isTBD && (
                     <div className="rounded-xl overflow-hidden"
                       style={{ background: 'var(--bg-glass)', border: '1px solid var(--border-glass)' }}>
                       <div className="px-3 py-2 border-b border-white/5">
@@ -407,11 +438,11 @@ export function MatchDetailSheet() {
                 </div>
               )}
 
-              {activeTab === 'lineups' && <LineupsTab stats={matchStats} />}
+              {!isTBD && activeTab === 'lineups' && matchStats && <LineupsTab stats={matchStats} />}
 
-              {activeTab === 'stats' && hasTimelineAndStats && <StatsTab stats={matchStats} />}
+              {!isTBD && activeTab === 'stats' && hasTimelineAndStats && matchStats && <StatsTab stats={matchStats} />}
 
-              {activeTab === 'timeline' && hasTimelineAndStats && <TimelineTab stats={matchStats} />}
+              {!isTBD && activeTab === 'timeline' && hasTimelineAndStats && matchStats && <TimelineTab stats={matchStats} />}
             </div>
           </motion.div>
         </>

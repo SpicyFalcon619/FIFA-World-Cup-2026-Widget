@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { X, Shield, Users, Activity } from 'lucide-react';
 import { useWC2026Store } from '../../store/wc2026Store';
 import { squads } from '../../store/squadData';
+import { PlayerAvatar } from '../layout/PlayerAvatar';
 
 function StatPill({ label, value }: { label: string; value: number | string }) {
 
@@ -239,13 +240,16 @@ export function TeamDetailSheet() {
                           {players.map(p => (
                             <div
                               key={p.number}
-                              className="flex items-center gap-2.5 p-2 rounded-xl"
+                              className="flex items-center gap-2 p-1.5 rounded-xl min-w-0"
                               style={{ background: 'var(--bg-glass)', border: '1px solid var(--border-glass)' }}
                             >
-                              <span className="text-[11px] font-mono font-bold text-[var(--accent-gold)] w-5 text-center shrink-0">
-                                #{p.number}
-                              </span>
-                              <span className="text-sm font-semibold text-white/95 truncate">{p.name}</span>
+                              <PlayerAvatar name={p.name} size="sm" />
+                              <div className="flex flex-col min-w-0 flex-1">
+                                <span className="text-xs font-bold text-white/95 truncate leading-snug">{p.name}</span>
+                                <span className="text-[10px] font-mono font-bold text-[var(--accent-gold)] leading-none mt-0.5">
+                                  #{p.number}
+                                </span>
+                              </div>
                             </div>
                           ))}
                         </div>

@@ -27,8 +27,24 @@ export function TitleBar() {
       }}
     >
       <div className="flex items-center gap-2 pointer-events-none">
-        <img src="https://crests.football-data.org/wm26.png" alt="World Cup 2026 Logo" className="h-6 object-contain drop-shadow-md" />
-        <span className="font-bold text-sm tracking-widest text-[var(--text-primary)]">WORLD CUP 26</span>
+        <svg viewBox="0 0 24 24" className="w-5.5 h-5.5 drop-shadow-[0_0_6px_rgba(245,184,0,0.6)]" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="trophy-gold" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#FFF2B2" />
+              <stop offset="40%" stopColor="#F5B800" />
+              <stop offset="100%" stopColor="#A87300" />
+            </linearGradient>
+          </defs>
+          <circle cx="12" cy="7" r="4.2" fill="url(#trophy-gold)" />
+          <path d="M7 11C7 11 9 13.5 12 13.5" stroke="url(#trophy-gold)" strokeWidth="1.8" strokeLinecap="round" />
+          <path d="M17 11C17 11 15 13.5 12 13.5" stroke="url(#trophy-gold)" strokeWidth="1.8" strokeLinecap="round" />
+          <path d="M10 13L9.5 19H14.5L14 13" fill="url(#trophy-gold)" />
+          <path d="M7 19H17V21.5H7V19Z" fill="url(#trophy-gold)" />
+          <path d="M10.5 14.5H13.5" stroke="#0D0F16" strokeWidth="0.8" strokeLinecap="round" />
+          <path d="M10.2 16.5H13.8" stroke="#0D0F16" strokeWidth="0.8" strokeLinecap="round" />
+          <path d="M10 18.5H14" stroke="#0D0F16" strokeWidth="0.8" strokeLinecap="round" />
+        </svg>
+        <span className="font-black text-xs tracking-widest text-[var(--accent-gold)] drop-shadow-[0_0_6px_rgba(245,184,0,0.25)]">WORLD CUP WIDGET 26</span>
       </div>
       
       <div className="flex items-center gap-1 z-50">
