@@ -1,12 +1,8 @@
-import { useCountdown } from '../../hooks/useCountdown';
 import { useWC2026Store } from '../../store/wc2026Store';
 import { formatTime, formatDate } from '../../lib/timeUtils';
 
 export function CountdownBadge({ utcKickoff, stadiumId }: { utcKickoff: string, stadiumId: number }) {
-  const { days, hours, minutes, seconds, isPast } = useCountdown(utcKickoff, stadiumId);
   const timezone = useWC2026Store(s => s.timezone);
-
-  const pad = (n: number) => n.toString().padStart(2, '0');
 
   return (
     <div className="flex flex-col items-center mt-1">

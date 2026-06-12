@@ -34,7 +34,6 @@ export function MatchCard({ match }: { match: Match }) {
   const awayGoals = match.status === 'FINISHED' ? parseScorers(match.awayScorers) : [];
   const hasScorers = homeGoals.length > 0 || awayGoals.length > 0;
 
-  const timezone = useWC2026Store(s => s.timezone);
 
   return (
     <div 

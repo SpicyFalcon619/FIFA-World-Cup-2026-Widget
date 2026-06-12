@@ -1,4 +1,4 @@
-import { Pin, X, Minus, Layers, PictureInPicture2, Maximize2, Droplet, RefreshCw } from 'lucide-react';
+import { Pin, X, Minus, Layers, PictureInPicture2, Maximize2, RefreshCw } from 'lucide-react';
 import { getCurrentWindow } from '@tauri-apps/api/window';
 import { useWindowLayer } from '../../hooks/useWindowLayer';
 import { useWC2026Store } from '../../store/wc2026Store';
@@ -10,13 +10,6 @@ export function TitleBar() {
   const [windowLayer, cycleLayer] = useWindowLayer();
   const { compactMode, setCompactMode, bgOpacity, setBgOpacity } = useWC2026Store();
   const { isChecking, checkForUpdates } = useUpdater();
-
-  const cycleOpacity = () => {
-    if (bgOpacity >= 0.95) setBgOpacity(0.80);
-    else if (bgOpacity >= 0.80) setBgOpacity(0.60);
-    else if (bgOpacity >= 0.60) setBgOpacity(0.40);
-    else setBgOpacity(0.95);
-  };
 
   const handlePointerDown = (e: React.PointerEvent) => {
     // Only start dragging if the target is NOT an interactive element

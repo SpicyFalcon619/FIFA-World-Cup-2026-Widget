@@ -21,7 +21,7 @@ const STADIUM_TIMEZONES: Record<number, string> = {
 };
 
 // Takes "MM/DD/YYYY HH:mm" stadium local time, and returns absolute Date
-function getAbsoluteDate(localDateStr: string, stadiumId: number): Date {
+export function getAbsoluteDate(localDateStr: string, stadiumId: number): Date {
   if (!localDateStr) return new Date();
   
   // Parse "06/11/2026 13:00" to components
