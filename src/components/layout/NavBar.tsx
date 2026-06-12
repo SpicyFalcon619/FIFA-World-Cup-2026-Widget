@@ -1,14 +1,17 @@
-import { CalendarDays, Zap, BarChart3 } from 'lucide-react';
+import { CalendarDays, Zap, BarChart3, RefreshCw } from 'lucide-react';
 import { useWC2026Store } from '../../store/wc2026Store';
+
+import { useUpdater } from '../../hooks/useUpdater';
 
 export function NavBar() {
   const { activePanel, setActivePanel, liveGames } = useWC2026Store();
+  const { isChecking, checkForUpdates } = useUpdater();
   
   const hasLive = liveGames.length > 0;
 
   return (
     <div 
-      className="h-[56px] flex flex-none items-center justify-around px-2 z-50"
+      className="h-[56px] flex flex-none items-center justify-around px-2 z-50 relative"
       style={{
         background: 'var(--bg-glass)',
         borderTop: '1px solid var(--border-glass)'
@@ -33,6 +36,15 @@ export function NavBar() {
         icon={<BarChart3 size={20} />}
         label="Standings"
       />
+
+      <button 
+        onClick={() => checkForUpdates(false)}
+        disabled={isChecking}
+        className={`absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-full transition-colors text-[var(--text-muted)] hover:text-white hover:bg-white/10 ${isChecking ? 'opacity-50 cursor-wait' : ''}`}
+        title="Check for Updates"
+      >
+        <RefreshCw size={14} className={isChecking ? "animate-spin" : ""} />
+      </button>
     </div>
   );
 }
