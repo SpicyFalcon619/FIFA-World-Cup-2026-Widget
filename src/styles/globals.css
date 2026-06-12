@@ -1,0 +1,35 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg-glass: var(--bg-glass);
+  --color-border-glass: var(--border-glass);
+  --color-accent-gold: var(--accent-gold);
+  --color-accent-green: var(--accent-green);
+  --color-text-primary: var(--text-primary);
+  --color-text-muted: var(--text-muted);
+  --radius-card: var(--radius-card);
+}
+
+html, body {
+  background: transparent !important;
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+}
+
+#root {
+  background: rgba(14, 16, 22, var(--app-bg-opacity, 0.90));
+  backdrop-filter: blur(28px) saturate(160%);
+  -webkit-backdrop-filter: blur(28px) saturate(160%);
+  height: 100%;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* Prevent text selection throughout the widget */
+* {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
