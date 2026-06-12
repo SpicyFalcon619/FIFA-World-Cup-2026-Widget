@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { X, Shield, Users, Activity } from 'lucide-react';
 import { useWC2026Store } from '../../store/wc2026Store';
+import { squads } from '../../store/squadData';
 
 function StatPill({ label, value }: { label: string; value: number | string }) {
 
@@ -214,11 +215,65 @@ export function TeamDetailSheet() {
                   )}
                 </>
               ) : (
-                <div className="text-center text-[var(--text-muted)] mt-6 mb-6 text-sm px-4">
-                  <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/8 flex items-center justify-center mx-auto mb-3">
-                    <Users size={18} className="text-white/20" />
-                  </div>
-                  Squad, coach, and player data are not available from the current API source (worldcup26.ir).
+                // Squad Tab
+                <div className="flex flex-col gap-4">
+                  {(() => {
+                    const squad = squads[selectedTeam];
+                    if (!squad) {
+                      return (
+                        <div className="text-center text-[var(--text-muted)] py-8 text-sm">
+                          Squad data not available for this team.
+                        </div>
+                      );
+                    }
+                    
+                    const gks = squad.players.filter(p => p.position === 'GK');
+                    const defs = squad.players.filter(p => p.position === 'DEF');
+                    const mids = squad.players.filter(p => p.position === 'MID');
+                    const fwds = squad.players.filter(p => p.position === 'FWD');
+
+                    const renderPositionGroup = (title: string, players: typeof gks) => (
+                      <div className="flex flex-col gap-2">
+                        <span className="text-[10px] font-bold tracking-widest text-white/35 uppercase px-1">{title}</span>
+                        <div className="grid grid-cols-2 gap-2">
+                          {players.map(p => (
+                            <div
+                              key={p.number}
+                              className="flex items-center gap-2.5 p-2 rounded-xl"
+                              style={{ background: 'var(--bg-glass)', border: '1px solid var(--border-glass)' }}
+                            >
+                              <span className="text-[11px] font-mono font-bold text-[var(--accent-gold)] w-5 text-center shrink-0">
+                                #{p.number}
+                              </span>
+                              <span className="text-sm font-semibold text-white/95 truncate">{p.name}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    );
+
+                    return (
+                      <>
+                        {/* Coach Pill */}
+                        <div className="flex items-center gap-3 p-3 rounded-xl"
+                          style={{ background: 'var(--bg-glass)', border: '1px solid var(--border-glass)' }}>
+                          <div className="w-8 h-8 rounded-full bg-white/5 border border-white/8 flex items-center justify-center shrink-0 text-white/45">
+                            <Users size={14} />
+                          </div>
+                          <div className="flex flex-col">
+                            <span className="text-[9px] uppercase tracking-wider text-white/35">Head Coach</span>
+                            <span className="text-sm font-bold text-white/90">{squad.coach}</span>
+                          </div>
+                        </div>
+
+                        {/* Player Groups */}
+                        {gks.length > 0 && renderPositionGroup("Goalkeepers", gks)}
+                        {defs.length > 0 && renderPositionGroup("Defenders", defs)}
+                        {mids.length > 0 && renderPositionGroup("Midfielders", mids)}
+                        {fwds.length > 0 && renderPositionGroup("Forwards", fwds)}
+                      </>
+                    );
+                  })()}
                 </div>
               )}
             </div>
