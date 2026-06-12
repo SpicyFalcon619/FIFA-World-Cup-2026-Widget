@@ -120,7 +120,7 @@ function FormationPitch({ home, away }: { home: TeamLineup, away: TeamLineup }) 
     // Determine color coding for rating
     let ratingColor = 'bg-yellow-500'; // 6.0 - 7.0
     if (p.rating >= 7.5) ratingColor = 'bg-green-500';
-    else if (p.rating < 5.5) ratingColor = 'bg-red-500';
+    else if (p.rating < 5.5) ratingColor = 'bg-slate-600'; // Changed from red so it's not mistaken for a red card!
 
     return (
       <div key={p.name} className="flex flex-col items-center justify-center relative w-12 group">
