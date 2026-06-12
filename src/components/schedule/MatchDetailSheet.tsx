@@ -236,25 +236,25 @@ export function MatchDetailSheet() {
   const { selectedMatch, setSelectedMatch, setSelectedTeam } = useWC2026Store();
   const [activeTab, setActiveTab] = useState<'overview' | 'lineups' | 'stats' | 'timeline'>('overview');
 
-  // Reset active tab when match changes
+  const isTBD = !selectedMatch?.homeTeam || 
+                !selectedMatch?.awayTeam || 
+                selectedMatch?.homeTeam === 'TBD' || 
+                selectedMatch?.awayTeam === 'TBD' ||
+                /winner|runner|group|tbd/i.test(selectedMatch?.homeTeam ?? '') || 
+                /winner|runner|group|tbd/i.test(selectedMatch?.awayTeam ?? '');
+
+  // Reset active tab when match changes — MUST be before any conditional return
   useEffect(() => {
     setActiveTab('overview');
   }, [selectedMatch?.id]);
 
-  if (!selectedMatch) return null;
-
-  const isTBD = !selectedMatch.homeTeam || 
-                !selectedMatch.awayTeam || 
-                selectedMatch.homeTeam === 'TBD' || 
-                selectedMatch.awayTeam === 'TBD' ||
-                /winner|runner|group|tbd/i.test(selectedMatch.homeTeam) || 
-                /winner|runner|group|tbd/i.test(selectedMatch.awayTeam);
-
-  // Generate deterministic stats & lineups if not TBD
+  // Generate deterministic stats & lineups — MUST be before conditional return (Rules of Hooks)
   const matchStats = useMemo(() => {
-    if (isTBD) return null;
+    if (!selectedMatch || isTBD) return null;
     return generateMatchStats(selectedMatch);
-  }, [selectedMatch.id, selectedMatch.status, selectedMatch.minute, selectedMatch.homeScore, selectedMatch.awayScore, isTBD]);
+  }, [selectedMatch?.id, selectedMatch?.status, selectedMatch?.minute, selectedMatch?.homeScore, selectedMatch?.awayScore, isTBD]);
+
+  if (!selectedMatch) return null;
 
   const hasTimelineAndStats = !isTBD && (selectedMatch.status === 'FINISHED' || selectedMatch.status === 'LIVE');
 
