@@ -171,7 +171,7 @@ export const useWC2026Store = create<WC2026Store>()(
     windowLayer: 'normal',
     timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
     compactMode: false,
-    bgOpacity: 0.90, // Defaults to 0.90 (less transparent than old 0.82)
+    bgOpacity: 1.0, // Fully opaque by default — user can dial down via slider
     setActivePanel: (panel) => set((s) => { s.activePanel = panel; }),
     setWindowLayer: (layer) => set((s) => { s.windowLayer = layer; }),
     setTimezone: (tz) => set((s) => { s.timezone = tz; }),
