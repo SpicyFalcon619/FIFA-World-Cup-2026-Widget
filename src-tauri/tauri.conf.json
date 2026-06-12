@@ -37,6 +37,14 @@
       "csp": "default-src 'self'; connect-src 'self' https://api.football-data.org https://v3.football.api-sports.io; style-src 'self' 'unsafe-inline'; img-src 'self' asset: https: data:"
     }
   },
+  "plugins": {
+    "updater": {
+      "endpoints": [
+        "https://github.com/USERNAME/REPO/releases/download/latest/latest.json"
+      ],
+      "pubkey": "UPDATE_PUBKEY_HERE"
+    }
+  },
 
   "bundle": {
     "active": true,
