@@ -58,8 +58,7 @@
     ],
     "windows": {
       "nsis": {
-        "installMode": "perUser",
-        "oneClick": true
+        "installMode": "currentUser"
       }
     }
   }
