@@ -1,10 +1,13 @@
-import { useWC2026Store, selectLiveGames } from '../../store/wc2026Store';
+import { useWC2026Store, getComputedLiveGames } from '../../store/wc2026Store';
 import { LiveMatchCard } from './LiveMatchCard';
 import { GoalFlash } from './GoalFlash';
 import { CalendarX } from 'lucide-react';
+import { useMemo } from 'react';
 
 export function Scoreboard() {
-  const liveGames = useWC2026Store(selectLiveGames);
+  const matches = useWC2026Store(s => s.matches);
+  const liveGamesState = useWC2026Store(s => s.liveGames);
+  const liveGames = useMemo(() => getComputedLiveGames(matches, liveGamesState), [matches, liveGamesState]);
 
   return (
     <div className="flex flex-col h-full relative">

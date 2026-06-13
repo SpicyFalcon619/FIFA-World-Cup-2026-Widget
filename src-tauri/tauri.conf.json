@@ -30,7 +30,7 @@
         "center": false,
         "x": 40,
         "y": 80,
-        "shadow": true
+        "shadow": false
       }
     ],
     "security": {

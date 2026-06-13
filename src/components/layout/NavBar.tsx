@@ -1,11 +1,13 @@
 import { CalendarDays, Zap, BarChart3, RefreshCw } from 'lucide-react';
-import { useWC2026Store, selectLiveGames } from '../../store/wc2026Store';
-
+import { useWC2026Store, getComputedLiveGames } from '../../store/wc2026Store';
+import { useMemo } from 'react';
 import { useUpdater } from '../../hooks/useUpdater';
 
 export function NavBar() {
   const { activePanel, setActivePanel } = useWC2026Store();
-  const liveGames = useWC2026Store(selectLiveGames);
+  const matches = useWC2026Store(s => s.matches);
+  const liveGamesState = useWC2026Store(s => s.liveGames);
+  const liveGames = useMemo(() => getComputedLiveGames(matches, liveGamesState), [matches, liveGamesState]);
   const { isChecking, checkForUpdates } = useUpdater();
   
   const hasLive = liveGames.length > 0;

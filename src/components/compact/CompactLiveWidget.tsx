@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
-import { useWC2026Store, selectLiveGames } from '../../store/wc2026Store';
-import { ChevronLeft, ChevronRight, Maximize2, X } from 'lucide-react';
+import { useState, useEffect, useMemo } from 'react';
+import { useWC2026Store, getComputedLiveGames } from '../../store/wc2026Store';
+import { ChevronLeft, ChevronRight, Maximize2, X, Lock, Unlock, Pin } from 'lucide-react';
 import { getCurrentWindow } from '@tauri-apps/api/window';
 
 const appWindow = getCurrentWindow();
@@ -35,8 +35,13 @@ interface CompactWidgetProps {
 }
 
 export function CompactLiveWidget({ onExpand }: CompactWidgetProps) {
-  const liveGames = useWC2026Store(selectLiveGames);
   const matches = useWC2026Store(s => s.matches);
+  const liveGamesState = useWC2026Store(s => s.liveGames);
+  const liveGames = useMemo(() => getComputedLiveGames(matches, liveGamesState), [matches, liveGamesState]);
+  const isPinned = useWC2026Store(s => s.isPinned);
+  const setIsPinned = useWC2026Store(s => s.setIsPinned);
+  const isAlwaysOnTop = useWC2026Store(s => s.isAlwaysOnTop);
+  const setIsAlwaysOnTop = useWC2026Store(s => s.setIsAlwaysOnTop);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [pulse, setPulse] = useState(true);
 
@@ -73,7 +78,7 @@ export function CompactLiveWidget({ onExpand }: CompactWidgetProps) {
     const next2 = upcomingMatches[1];
 
     return (
-      <div className="flex flex-col h-full w-full relative overflow-hidden" style={containerStyle}>
+      <div className="flex flex-col h-full w-full relative overflow-hidden bg-transparent">
         {/* Gold radial glow */}
         <div className="absolute inset-0 pointer-events-none" style={{
           background: 'radial-gradient(ellipse at 50% 0%, rgba(245,184,0,0.07) 0%, transparent 65%)',
@@ -100,6 +105,12 @@ export function CompactLiveWidget({ onExpand }: CompactWidgetProps) {
             </span>
           </div>
           <div className="flex items-center gap-0.5">
+            <button onClick={() => setIsAlwaysOnTop(!isAlwaysOnTop)} title={isAlwaysOnTop ? "Unpin from Top" : "Keep on Top"} className={`w-5 h-5 flex items-center justify-center rounded-md transition-colors ${isAlwaysOnTop ? 'text-[#F5B800] bg-white/10' : 'text-white/30 hover:text-white/80 hover:bg-white/8'}`}>
+              <Pin size={10} fill={isAlwaysOnTop ? 'currentColor' : 'none'} />
+            </button>
+            <button onClick={() => setIsPinned(!isPinned)} title={isPinned ? "Unlock Window" : "Lock Window"} className={`w-5 h-5 flex items-center justify-center rounded-md transition-colors ${isPinned ? 'text-red-400 bg-white/10' : 'text-white/30 hover:text-white/80 hover:bg-white/8'}`}>
+              {isPinned ? <Lock size={10} /> : <Unlock size={10} />}
+            </button>
             <button onClick={onExpand} title="Expand" className="w-5 h-5 flex items-center justify-center rounded-md text-white/30 hover:text-white/70 hover:bg-white/8 transition-colors">
               <Maximize2 size={10} />
             </button>
@@ -164,7 +175,7 @@ export function CompactLiveWidget({ onExpand }: CompactWidgetProps) {
   const minute = match.minute != null ? `${match.minute}'` : '';
 
   return (
-    <div className="flex flex-col h-full w-full relative overflow-hidden" style={containerStyle}>
+    <div className="flex flex-col h-full w-full relative overflow-hidden bg-transparent">
       {/* Gold radial glow */}
       <div className="absolute inset-0 pointer-events-none" style={{
         background: 'radial-gradient(ellipse at 50% 20%, rgba(245,184,0,0.07) 0%, transparent 65%)',
@@ -191,6 +202,12 @@ export function CompactLiveWidget({ onExpand }: CompactWidgetProps) {
           {minute && (
             <span className="font-mono text-[10px] font-bold text-white/50 mr-1">{minute}</span>
           )}
+          <button onClick={() => setIsAlwaysOnTop(!isAlwaysOnTop)} title={isAlwaysOnTop ? "Unpin from Top" : "Keep on Top"} className={`w-5 h-5 flex items-center justify-center rounded-md transition-colors ${isAlwaysOnTop ? 'text-[#F5B800] bg-white/10' : 'text-white/30 hover:text-white/80 hover:bg-white/8'}`}>
+            <Pin size={10} fill={isAlwaysOnTop ? 'currentColor' : 'none'} />
+          </button>
+          <button onClick={() => setIsPinned(!isPinned)} title={isPinned ? "Unlock Window" : "Lock Window"} className={`w-5 h-5 flex items-center justify-center rounded-md transition-colors ${isPinned ? 'text-red-400 bg-white/10' : 'text-white/30 hover:text-white/80 hover:bg-white/8'}`}>
+            {isPinned ? <Lock size={10} /> : <Unlock size={10} />}
+          </button>
           <button onClick={onExpand} title="Expand" className="w-5 h-5 flex items-center justify-center rounded-md text-white/30 hover:text-[#F5B800] hover:bg-white/8 transition-colors">
             <Maximize2 size={10} />
           </button>
@@ -201,16 +218,16 @@ export function CompactLiveWidget({ onExpand }: CompactWidgetProps) {
       </div>
 
       {/* Main: Flags + Score */}
-      <div className="flex-1 flex items-center justify-between px-4 gap-2 relative z-10">
+      <div className="flex-1 flex items-center justify-between px-8 gap-6 relative z-10">
         {/* Home */}
-        <div className="flex flex-col items-center gap-1 flex-1 min-w-0">
-          <div className="w-12 h-12 rounded-full flex items-center justify-center p-1.5" style={{
+        <div className="flex flex-col items-center gap-1.5 flex-1 min-w-0">
+          <div className="w-14 h-14 rounded-full flex items-center justify-center p-1 overflow-hidden" style={{
             background: 'rgba(255,255,255,0.05)',
-            border: '1px solid rgba(255,255,255,0.1)',
+            border: '1px solid rgba(255,255,255,0.15)',
             boxShadow: '0 2px 12px rgba(0,0,0,0.5)',
           }}>
             {match.homeFlag
-              ? <img src={match.homeFlag} alt={match.homeTeam} className="w-full h-full object-contain drop-shadow-md" />
+              ? <img src={match.homeFlag} alt={match.homeTeam} className="w-full h-full rounded-full object-cover" />
               : <div className="w-full h-full rounded-full bg-white/10" />}
           </div>
           <span className="font-black text-[10px] uppercase tracking-wide text-center truncate w-full px-1 text-white/85"
@@ -220,10 +237,10 @@ export function CompactLiveWidget({ onExpand }: CompactWidgetProps) {
         </div>
 
         {/* Score */}
-        <div className="flex flex-col items-center justify-center shrink-0 min-w-[60px]">
-          <div className="text-[30px] font-black tabular-nums tracking-tight leading-none text-white"
+        <div className="flex flex-col items-center justify-center shrink-0 min-w-[80px]">
+          <div className="text-[34px] font-black tabular-nums tracking-wider leading-none text-white"
             style={{ textShadow: '0 0 24px rgba(245,184,0,0.35)' }}>
-            {match.homeScore ?? 0}–{match.awayScore ?? 0}
+            {match.homeScore ?? 0} <span className="text-white/60 font-normal mx-0.5">-</span> {match.awayScore ?? 0}
           </div>
           {match.homeRedCards > 0 || match.awayRedCards > 0 ? (
             <div className="flex items-center gap-2 mt-0.5">
@@ -238,14 +255,14 @@ export function CompactLiveWidget({ onExpand }: CompactWidgetProps) {
         </div>
 
         {/* Away */}
-        <div className="flex flex-col items-center gap-1 flex-1 min-w-0">
-          <div className="w-12 h-12 rounded-full flex items-center justify-center p-1.5" style={{
+        <div className="flex flex-col items-center gap-1.5 flex-1 min-w-0">
+          <div className="w-14 h-14 rounded-full flex items-center justify-center p-1 overflow-hidden" style={{
             background: 'rgba(255,255,255,0.05)',
-            border: '1px solid rgba(255,255,255,0.1)',
+            border: '1px solid rgba(255,255,255,0.15)',
             boxShadow: '0 2px 12px rgba(0,0,0,0.5)',
           }}>
             {match.awayFlag
-              ? <img src={match.awayFlag} alt={match.awayTeam} className="w-full h-full object-contain drop-shadow-md" />
+              ? <img src={match.awayFlag} alt={match.awayTeam} className="w-full h-full rounded-full object-cover" />
               : <div className="w-full h-full rounded-full bg-white/10" />}
           </div>
           <span className="font-black text-[10px] uppercase tracking-wide text-center truncate w-full px-1 text-white/85"

@@ -11,6 +11,14 @@
   </head>
   <body style="background: transparent; margin: 0; overflow: hidden;">
     <div id="root"></div>
+    <script>
+      window.addEventListener('error', (e) => {
+        document.body.innerHTML += `<div style="position:fixed;top:0;left:0;right:0;bottom:0;background:red;color:white;z-index:9999;padding:20px;overflow:auto;font-family:monospace;"><h3>Runtime Error</h3><pre>${e.error?.stack || e.message}</pre></div>`;
+      });
+      window.addEventListener('unhandledrejection', (e) => {
+        document.body.innerHTML += `<div style="position:fixed;top:0;left:0;right:0;bottom:0;background:red;color:white;z-index:9999;padding:20px;overflow:auto;font-family:monospace;"><h3>Unhandled Promise Rejection</h3><pre>${e.reason?.stack || e.reason}</pre></div>`;
+      });
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

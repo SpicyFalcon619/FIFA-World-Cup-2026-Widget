@@ -120,11 +120,15 @@ interface AppSlice {
   timezone: string;
   compactMode: boolean;
   bgOpacity: number;
+  isPinned: boolean;
+  isAlwaysOnTop: boolean;
   setActivePanel: (panel: AppSlice['activePanel']) => void;
   setWindowLayer: (layer: AppSlice['windowLayer']) => void;
   setTimezone: (tz: string) => void;
   setCompactMode: (compact: boolean) => void;
   setBgOpacity: (opacity: number) => void;
+  setIsPinned: (isPinned: boolean) => void;
+  setIsAlwaysOnTop: (isAlwaysOnTop: boolean) => void;
 }
 
 export type WC2026Store = ScheduleSlice & LiveScoreSlice & StandingsSlice & AppSlice;
@@ -157,25 +161,27 @@ export const useWC2026Store = create<WC2026Store>()(
     toggleKnockoutView: () => set((s) => { s.knockoutView = !s.knockoutView; }),
     setSelectedTeam: (team) => set((s) => { s.selectedTeam = team; }),
 
-    // App
+    // App State
     activePanel: 'schedule',
     windowLayer: 'normal',
     timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
     compactMode: false,
-    bgOpacity: 1.0, // Fully opaque by default — user can dial down via slider
+    bgOpacity: 1.0,
+    isPinned: false,
+    isAlwaysOnTop: false,
     setActivePanel: (panel) => set((s) => { s.activePanel = panel; }),
     setWindowLayer: (layer) => set((s) => { s.windowLayer = layer; }),
     setTimezone: (tz) => set((s) => { s.timezone = tz; }),
     setCompactMode: (compact) => set((s) => { s.compactMode = compact; }),
     setBgOpacity: (opacity) => set((s) => { s.bgOpacity = opacity; }),
+    setIsPinned: (isPinned) => set((s) => { s.isPinned = isPinned; }),
+    setIsAlwaysOnTop: (isAlwaysOnTop) => set((s) => { s.isAlwaysOnTop = isAlwaysOnTop; }),
   }))
 );
 
-
-
-export const selectLiveGames = (state: WC2026Store) => {
+export function getComputedLiveGames(matches: Match[], liveGamesState: Match[]): Match[] {
   const now = Date.now();
-  const allLive = state.matches.filter(m => {
+  const allLive = matches.filter(m => {
     if (m.status === 'FINISHED') return false;
     if (m.status === 'LIVE') return true;
     try {
@@ -187,11 +193,30 @@ export const selectLiveGames = (state: WC2026Store) => {
   });
 
   return allLive.map(m => {
-    const liveUpdate = state.liveGames.find(lg => lg.id === m.id);
-    return liveUpdate ? { ...m, ...liveUpdate } : m;
+    const liveUpdate = liveGamesState.find(lg => lg.id === m.id);
+    const merged = liveUpdate ? { ...m, ...liveUpdate } : { ...m };
+    
+    if (merged.status === 'LIVE' && merged.minute == null) {
+        try {
+            const kickoff = getAbsoluteDate(merged.utcKickoff, merged.stadiumId).getTime();
+            const elapsedMs = now - kickoff;
+            let mins = Math.floor(elapsedMs / 60000);
+            if (mins < 0) mins = 0;
+            if (mins > 45) {
+                if (mins <= 60) mins = 45; // half time
+                else mins -= 15;
+            }
+            if (mins > 120) mins = 120;
+            merged.minute = mins;
+        } catch {
+            // fallback
+        }
+    }
+    
+    return merged;
   }).sort((a, b) => {
     const dateA = getAbsoluteDate(a.utcKickoff, a.stadiumId).getTime();
     const dateB = getAbsoluteDate(b.utcKickoff, b.stadiumId).getTime();
     return dateA - dateB;
   });
-};
+}
