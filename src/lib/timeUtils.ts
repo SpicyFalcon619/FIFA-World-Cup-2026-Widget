@@ -24,44 +24,36 @@ const STADIUM_TIMEZONES: Record<number, string> = {
 export function getAbsoluteDate(localDateStr: string, stadiumId: number): Date {
   if (!localDateStr) return new Date();
   
-  // Parse "06/11/2026 13:00" to components
-  const [datePart, timePart] = localDateStr.split(' ');
-  const [mm, dd, yyyy] = datePart.split('/');
-  const [hh, min] = timePart.split(':');
-  
-  // Format as ISO string without Z: "2026-06-11T13:00:00"
-  const isoStr = `${yyyy}-${mm.padStart(2, '0')}-${dd.padStart(2, '0')}T${hh.padStart(2, '0')}:${min.padStart(2, '0')}:00`;
-  
-  const stadiumTz = STADIUM_TIMEZONES[stadiumId] || 'UTC';
-  
-  // We can construct the absolute date by using Intl or trying to offset it.
-  // Actually, standard Date parsing evaluates local machine time.
-  // A clean hack: Calculate the offset difference. But it's easier:
-  // "2026-06-11T13:00:00-06:00" if we know the offset.
-  // Wait, date-fns-tz has a proper way to do this without `fromZonedTime` if it's missing.
-  // Let's use standard Date with the offset if possible.
-  // Wait! formatInTimeZone parses an ISO string IF it has an offset.
-  // Actually, we can just use `new Date(new Date(isoStr).toLocaleString("en-US", {timeZone: stadiumTz}))` hack?
-  // Let's just do standard string manipulation to add the offset? No, DST applies.
-  // We'll just rely on `date-fns-tz` or standard Intl to find the timezone offset.
-  
-  const formatter = new Intl.DateTimeFormat('en-US', {
-    timeZone: stadiumTz,
-    timeZoneName: 'longOffset',
-    year: 'numeric', month: '2-digit', day: '2-digit',
-    hour: '2-digit', minute: '2-digit', hour12: false
-  });
-  
-  // Find the offset (e.g. GMT-0600) for this specific date
-  // Wait, to find the offset for this specific date, we must parse it first.
-  const tempDate = new Date(`${yyyy}-${mm}-${dd}T12:00:00Z`);
-  const parts = formatter.formatToParts(tempDate);
-  const tzName = parts.find(p => p.type === 'timeZoneName')?.value || 'GMT+0000';
-  // tzName is like "GMT-06:00" or "GMT-05:00"
-  const offset = tzName.replace('GMT', '').replace('0000', '+00:00');
-  
-  // Combine ISO with offset: 2026-06-11T13:00:00-06:00
-  return new Date(`${isoStr}${offset === '' ? 'Z' : offset}`);
+  try {
+    const parts = localDateStr.split(' ');
+    const datePart = parts[0] || '';
+    const timePart = parts[1] || '00:00';
+    
+    const [mm, dd, yyyy] = datePart.split('/');
+    if (!mm || !dd || !yyyy) return new Date(localDateStr);
+
+    const [hh, min] = timePart.split(':');
+    
+    const isoStr = `${yyyy}-${mm.padStart(2, '0')}-${dd.padStart(2, '0')}T${(hh||'0').padStart(2, '0')}:${(min||'0').padStart(2, '0')}:00`;
+    
+    const stadiumTz = STADIUM_TIMEZONES[stadiumId] || 'UTC';
+    
+    const formatter = new Intl.DateTimeFormat('en-US', {
+      timeZone: stadiumTz,
+      timeZoneName: 'longOffset',
+      year: 'numeric', month: '2-digit', day: '2-digit',
+      hour: '2-digit', minute: '2-digit', hour12: false
+    });
+    
+    const tempDate = new Date(`${yyyy}-${mm}-${dd}T12:00:00Z`);
+    const formattedParts = formatter.formatToParts(tempDate);
+    const tzName = formattedParts.find(p => p.type === 'timeZoneName')?.value || 'GMT+0000';
+    const offset = tzName.replace('GMT', '').replace('0000', '+00:00');
+    
+    return new Date(`${isoStr}${offset === '' ? 'Z' : offset}`);
+  } catch (e) {
+    return new Date(localDateStr || Date.now());
+  }
 }
 
 export function formatTime(localDateStr: string, stadiumId: number, userTimezone: string): string {
