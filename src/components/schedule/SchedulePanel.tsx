@@ -1,6 +1,7 @@
 import { useWC2026Store } from '../../store/wc2026Store';
 import { FilterBar } from './FilterBar';
 import { MatchCard } from './MatchCard';
+import { getAbsoluteDate } from '../../lib/timeUtils';
 
 export function SchedulePanel() {
   const { matches, filterStage, filterGroup } = useWC2026Store();
@@ -9,6 +10,10 @@ export function SchedulePanel() {
     if (filterStage !== 'ALL' && m.stage !== filterStage) return false;
     if (filterGroup !== 'ALL' && m.group !== filterGroup) return false;
     return true;
+  }).sort((a, b) => {
+    const dateA = getAbsoluteDate(a.utcKickoff, a.stadiumId).getTime();
+    const dateB = getAbsoluteDate(b.utcKickoff, b.stadiumId).getTime();
+    return dateA - dateB;
   });
 
   return (

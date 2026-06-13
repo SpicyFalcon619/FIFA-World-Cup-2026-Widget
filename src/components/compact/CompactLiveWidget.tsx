@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useWC2026Store } from '../../store/wc2026Store';
+import { useWC2026Store, selectLiveGames } from '../../store/wc2026Store';
 import { ChevronLeft, ChevronRight, Maximize2, X } from 'lucide-react';
 import { getCurrentWindow } from '@tauri-apps/api/window';
 
@@ -35,7 +35,7 @@ interface CompactWidgetProps {
 }
 
 export function CompactLiveWidget({ onExpand }: CompactWidgetProps) {
-  const liveGames = useWC2026Store(s => s.liveGames);
+  const liveGames = useWC2026Store(selectLiveGames);
   const matches = useWC2026Store(s => s.matches);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [pulse, setPulse] = useState(true);

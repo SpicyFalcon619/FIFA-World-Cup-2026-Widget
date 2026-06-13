@@ -179,3 +179,28 @@ export const useWC2026Store = create<WC2026Store>()(
     setBgOpacity: (opacity) => set((s) => { s.bgOpacity = opacity; }),
   }))
 );
+
+import { getAbsoluteDate } from '../lib/timeUtils';
+
+export const selectLiveGames = (state: WC2026Store) => {
+  const now = Date.now();
+  const allLive = state.matches.filter(m => {
+    if (m.status === 'FINISHED') return false;
+    if (m.status === 'LIVE') return true;
+    try {
+      const kickoff = getAbsoluteDate(m.utcKickoff, m.stadiumId).getTime();
+      return now >= kickoff - 5 * 60 * 1000;
+    } catch (e) {
+      return false;
+    }
+  });
+
+  return allLive.map(m => {
+    const liveUpdate = state.liveGames.find(lg => lg.id === m.id);
+    return liveUpdate ? { ...m, ...liveUpdate } : m;
+  }).sort((a, b) => {
+    const dateA = getAbsoluteDate(a.utcKickoff, a.stadiumId).getTime();
+    const dateB = getAbsoluteDate(b.utcKickoff, b.stadiumId).getTime();
+    return dateA - dateB;
+  });
+};
