@@ -65,12 +65,6 @@ export function CompactLiveWidget({ onExpand }: CompactWidgetProps) {
   const handleNext = () =>
     setCurrentIndex(prev => (prev < liveGames.length - 1 ? prev + 1 : 0));
 
-  const containerStyle: React.CSSProperties = {
-    background: 'linear-gradient(160deg, #0d0f1a 0%, #111206 100%)',
-    borderRadius: '14px',
-    border: '1px solid rgba(245,184,0,0.18)',
-    boxShadow: '0 8px 32px rgba(0,0,0,0.7), 0 0 20px rgba(245,184,0,0.06)',
-  };
 
   // ── No live matches ──────────────────────────────────────
   if (liveGames.length === 0) {
