@@ -17,79 +17,134 @@ export const squads: Record<string, TeamSquad> = {
     "coach": "T. Ammouta",
     "players": [
       {
-        "name": "H. Bishara",
+        "name": "O. Benbot",
+        "position": "GK",
+        "number": 16
+      },
+      {
+        "name": "M. Mastil",
         "position": "GK",
         "number": 1
       },
       {
-        "name": "Y. Naim",
-        "position": "DEF",
-        "number": 12
+        "name": "L. Zidane",
+        "position": "GK",
+        "number": 23
       },
       {
-        "name": "A. Zaid",
+        "name": "A. Abada",
         "position": "DEF",
-        "number": 6
+        "number": 3
       },
       {
-        "name": "O. Farah",
+        "name": "R. Aït-Nouri",
         "position": "DEF",
-        "number": 14
+        "number": 15
       },
       {
-        "name": "I. Rahman",
-        "position": "DEF",
-        "number": 13
-      },
-      {
-        "name": "H. Gaddafi",
+        "name": "Z. Belaïd",
         "position": "DEF",
         "number": 5
       },
       {
-        "name": "A. Khalil",
-        "position": "MID",
-        "number": 18
+        "name": "R. Belghali",
+        "position": "DEF",
+        "number": 17
       },
       {
-        "name": "O. Naim",
+        "name": "R. Bensebaïni",
+        "position": "DEF",
+        "number": 21
+      },
+      {
+        "name": "S. Chergui",
+        "position": "DEF",
+        "number": 26
+      },
+      {
+        "name": "J. Hadjam",
+        "position": "DEF",
+        "number": 13
+      },
+      {
+        "name": "A. Mandi",
+        "position": "DEF",
+        "number": 2
+      },
+      {
+        "name": "M. Tougai",
+        "position": "DEF",
+        "number": 4
+      },
+      {
+        "name": "H. Aouar",
+        "position": "MID",
+        "number": 8
+      },
+      {
+        "name": "N. Bentaleb",
+        "position": "MID",
+        "number": 19
+      },
+      {
+        "name": "H. Boudaoui",
+        "position": "MID",
+        "number": 14
+      },
+      {
+        "name": "I. Maza",
+        "position": "MID",
+        "number": 22
+      },
+      {
+        "name": "Y. Titraoui",
+        "position": "MID",
+        "number": 24
+      },
+      {
+        "name": "R. Zerrouki",
+        "position": "MID",
+        "number": 6
+      },
+      {
+        "name": "F. Chaïbi",
         "position": "MID",
         "number": 10
       },
       {
-        "name": "K. Khalil",
-        "position": "MID",
-        "number": 15
-      },
-      {
-        "name": "O. Zaid",
-        "position": "MID",
-        "number": 17
-      },
-      {
-        "name": "A. Rahman",
-        "position": "MID",
-        "number": 16
-      },
-      {
-        "name": "Y. Zaid",
+        "name": "M. Amoura",
         "position": "FWD",
-        "number": 7
+        "number": 18
       },
       {
-        "name": "A. Saleh",
+        "name": "A. Benbouali",
         "position": "FWD",
-        "number": 23
+        "number": 12
       },
       {
-        "name": "H. Zaid",
+        "name": "A. Boulbina",
+        "position": "FWD",
+        "number": 20
+      },
+      {
+        "name": "F. Ghedjemis",
+        "position": "FWD",
+        "number": 25
+      },
+      {
+        "name": "A. Gouiri",
         "position": "FWD",
         "number": 9
       },
       {
-        "name": "Y. Harbi",
+        "name": "A. Hadj-Moussa",
         "position": "FWD",
-        "number": 22
+        "number": 11
+      },
+      {
+        "name": "R. Mahrez",
+        "position": "FWD",
+        "number": 7
       }
     ]
   },
@@ -102,19 +157,29 @@ export const squads: Record<string, TeamSquad> = {
         "number": 23
       },
       {
-        "name": "C. Romero",
+        "name": "J. Musso",
+        "position": "GK",
+        "number": 1
+      },
+      {
+        "name": "G. Rulli",
+        "position": "GK",
+        "number": 12
+      },
+      {
+        "name": "L. Balerdi",
         "position": "DEF",
-        "number": 13
+        "number": 2
       },
       {
         "name": "L. Martínez",
         "position": "DEF",
-        "number": 25
+        "number": 6
       },
       {
-        "name": "N. Otamendi",
+        "name": "F. Medina",
         "position": "DEF",
-        "number": 19
+        "number": 25
       },
       {
         "name": "N. Molina",
@@ -122,9 +187,29 @@ export const squads: Record<string, TeamSquad> = {
         "number": 26
       },
       {
+        "name": "G. Montiel",
+        "position": "DEF",
+        "number": 4
+      },
+      {
+        "name": "N. Otamendi",
+        "position": "DEF",
+        "number": 19
+      },
+      {
+        "name": "C. Romero",
+        "position": "DEF",
+        "number": 13
+      },
+      {
         "name": "N. Tagliafico",
         "position": "DEF",
         "number": 3
+      },
+      {
+        "name": "V. Barco",
+        "position": "MID",
+        "number": 8
       },
       {
         "name": "E. Fernández",
@@ -132,14 +217,19 @@ export const squads: Record<string, TeamSquad> = {
         "number": 24
       },
       {
+        "name": "G. Lo Celso",
+        "position": "MID",
+        "number": 11
+      },
+      {
         "name": "A. Mac Allister",
         "position": "MID",
         "number": 20
       },
       {
-        "name": "R. De Paul",
+        "name": "E. Palacios",
         "position": "MID",
-        "number": 7
+        "number": 14
       },
       {
         "name": "L. Paredes",
@@ -147,19 +237,19 @@ export const squads: Record<string, TeamSquad> = {
         "number": 5
       },
       {
-        "name": "G. Lo Celso",
+        "name": "N. González",
+        "position": "FWD",
+        "number": 15
+      },
+      {
+        "name": "R. De Paul",
+        "position": "MID",
+        "number": 7
+      },
+      {
+        "name": "T. Almada",
         "position": "MID",
         "number": 16
-      },
-      {
-        "name": "L. Messi",
-        "position": "FWD",
-        "number": 10
-      },
-      {
-        "name": "Lautaro Martínez",
-        "position": "FWD",
-        "number": 22
       },
       {
         "name": "J. Álvarez",
@@ -167,9 +257,29 @@ export const squads: Record<string, TeamSquad> = {
         "number": 9
       },
       {
-        "name": "A. Di María",
+        "name": "N. Paz",
         "position": "FWD",
-        "number": 11
+        "number": 18
+      },
+      {
+        "name": "J. López",
+        "position": "FWD",
+        "number": 21
+      },
+      {
+        "name": "L. Martínez",
+        "position": "FWD",
+        "number": 22
+      },
+      {
+        "name": "L. Messi",
+        "position": "FWD",
+        "number": 10
+      },
+      {
+        "name": "G. Simeone",
+        "position": "MID",
+        "number": 17
       }
     ]
   },
@@ -177,79 +287,134 @@ export const squads: Record<string, TeamSquad> = {
     "coach": "A. Postecoglou",
     "players": [
       {
-        "name": "C. Johnson",
+        "name": "P. Beach",
+        "position": "GK",
+        "number": 18
+      },
+      {
+        "name": "P. Izzo",
+        "position": "GK",
+        "number": 12
+      },
+      {
+        "name": "M. Ryan",
         "position": "GK",
         "number": 1
       },
       {
-        "name": "D. Thomas",
-        "position": "DEF",
-        "number": 14
-      },
-      {
-        "name": "M. Davies",
-        "position": "DEF",
-        "number": 13
-      },
-      {
-        "name": "T. Jones",
-        "position": "DEF",
-        "number": 12
-      },
-      {
-        "name": "T. Thomas",
-        "position": "DEF",
-        "number": 6
-      },
-      {
-        "name": "D. Jones",
-        "position": "DEF",
-        "number": 5
-      },
-      {
-        "name": "J. Taylor",
-        "position": "MID",
-        "number": 20
-      },
-      {
-        "name": "W. Taylor",
-        "position": "MID",
-        "number": 21
-      },
-      {
-        "name": "E. Evans",
-        "position": "MID",
-        "number": 18
-      },
-      {
-        "name": "L. Evans",
-        "position": "MID",
-        "number": 17
-      },
-      {
-        "name": "W. Johnson",
+        "name": "A. Behich",
         "position": "MID",
         "number": 16
       },
       {
-        "name": "E. Johnson",
-        "position": "FWD",
+        "name": "J. Bos",
+        "position": "DEF",
+        "number": 5
+      },
+      {
+        "name": "C. Burgess",
+        "position": "DEF",
+        "number": 21
+      },
+      {
+        "name": "A. Circati",
+        "position": "DEF",
+        "number": 3
+      },
+      {
+        "name": "J. Geria",
+        "position": "DEF",
+        "number": 6
+      },
+      {
+        "name": "L. Herrington",
+        "position": "DEF",
+        "number": 25
+      },
+      {
+        "name": "H. Souttar",
+        "position": "DEF",
         "number": 19
       },
       {
-        "name": "R. Smith",
+        "name": "M. Degenek",
+        "position": "DEF",
+        "number": 2
+      },
+      {
+        "name": "J. Italiano",
+        "position": "DEF",
+        "number": 4
+      },
+      {
+        "name": "K. Trewin",
+        "position": "MID",
+        "number": 15
+      },
+      {
+        "name": "J. Irvine",
+        "position": "MID",
+        "number": 22
+      },
+      {
+        "name": "C. Devlin",
+        "position": "MID",
+        "number": 14
+      },
+      {
+        "name": "A. O Neill",
+        "position": "MID",
+        "number": 13
+      },
+      {
+        "name": "P. Okon-Engstler",
+        "position": "MID",
+        "number": 24
+      },
+      {
+        "name": "C. Metcalfe",
+        "position": "MID",
+        "number": 8
+      },
+      {
+        "name": "A. Hrustic",
+        "position": "MID",
+        "number": 10
+      },
+      {
+        "name": "C. Volpato",
+        "position": "FWD",
+        "number": 20
+      },
+      {
+        "name": "N. Irankunda",
+        "position": "FWD",
+        "number": 17
+      },
+      {
+        "name": "M. Leckie",
         "position": "FWD",
         "number": 7
       },
       {
-        "name": "E. Taylor",
+        "name": "A. Mabil",
+        "position": "MID",
+        "number": 11
+      },
+      {
+        "name": "T. Yengi",
+        "position": "FWD",
+        "number": 26
+      },
+      {
+        "name": "M. Touré",
         "position": "FWD",
         "number": 9
       },
       {
-        "name": "J. Roberts",
+        "name": "N. Velupillay",
         "position": "FWD",
-        "number": 22
+        "number": 23
       }
     ]
   },
@@ -257,79 +422,134 @@ export const squads: Record<string, TeamSquad> = {
     "coach": "J. Nagelsmann",
     "players": [
       {
-        "name": "L. Klein",
+        "name": "P. Pentz",
+        "position": "GK",
+        "number": 13
+      },
+      {
+        "name": "A. Schlager",
         "position": "GK",
         "number": 1
       },
       {
-        "name": "M. Koch",
-        "position": "DEF",
-        "number": 14
-      },
-      {
-        "name": "P. Weber",
-        "position": "DEF",
-        "number": 13
-      },
-      {
-        "name": "J. Weber",
-        "position": "DEF",
+        "name": "F. Wiegele",
+        "position": "GK",
         "number": 12
       },
       {
-        "name": "T. Fischer",
+        "name": "D. Affengruber",
         "position": "DEF",
-        "number": 6
+        "number": 2
       },
       {
-        "name": "C. Schulz",
+        "name": "D. Alaba",
+        "position": "DEF",
+        "number": 8
+      },
+      {
+        "name": "K. Danso",
+        "position": "DEF",
+        "number": 3
+      },
+      {
+        "name": "M. Friedl",
+        "position": "DEF",
+        "number": 23
+      },
+      {
+        "name": "P. Lienhart",
+        "position": "DEF",
+        "number": 15
+      },
+      {
+        "name": "P. Mwene",
+        "position": "DEF",
+        "number": 16
+      },
+      {
+        "name": "S. Posch",
         "position": "DEF",
         "number": 5
       },
       {
-        "name": "L. Klein",
-        "position": "MID",
-        "number": 8
+        "name": "M. Svoboda",
+        "position": "DEF",
+        "number": 25
       },
       {
-        "name": "T. Schulz",
+        "name": "C. Baumgartner",
+        "position": "MID",
+        "number": 19
+      },
+      {
+        "name": "C. Chukwuemeka",
+        "position": "MID",
+        "number": 17
+      },
+      {
+        "name": "F. Grillitsch",
         "position": "MID",
         "number": 10
       },
       {
-        "name": "P. Bauer",
-        "position": "MID",
+        "name": "K. Laimer",
+        "position": "DEF",
         "number": 20
       },
       {
-        "name": "A. Fischer",
+        "name": "A. Prass",
+        "position": "DEF",
+        "number": 22
+      },
+      {
+        "name": "M. Sabitzer",
+        "position": "MID",
+        "number": 9
+      },
+      {
+        "name": "X. Schlager",
+        "position": "MID",
+        "number": 4
+      },
+      {
+        "name": "R. Schmid",
+        "position": "MID",
+        "number": 18
+      },
+      {
+        "name": "A. Schöpf",
+        "position": "MID",
+        "number": 26
+      },
+      {
+        "name": "N. Seiwald",
+        "position": "MID",
+        "number": 6
+      },
+      {
+        "name": "P. Wanner",
+        "position": "MID",
+        "number": 24
+      },
+      {
+        "name": "P. Wimmer",
         "position": "MID",
         "number": 21
       },
       {
-        "name": "A. Hoffmann",
-        "position": "MID",
-        "number": 15
-      },
-      {
-        "name": "L. Hoffmann",
+        "name": "M. Arnautovic",
         "position": "FWD",
         "number": 7
       },
       {
-        "name": "M. Neumann",
-        "position": "FWD",
-        "number": 9
-      },
-      {
-        "name": "M. Wolf",
-        "position": "FWD",
-        "number": 23
-      },
-      {
-        "name": "L. Richter",
-        "position": "FWD",
+        "name": "M. Gregoritsch",
+        "position": "MID",
         "number": 11
+      },
+      {
+        "name": "S. Kalajdzic",
+        "position": "FWD",
+        "number": 14
       }
     ]
   },
@@ -337,79 +557,134 @@ export const squads: Record<string, TeamSquad> = {
     "coach": "M. Rossi",
     "players": [
       {
-        "name": "L. Schulz",
+        "name": "T. Courtois",
         "position": "GK",
         "number": 1
       },
       {
-        "name": "S. Wolf",
-        "position": "DEF",
-        "number": 6
+        "name": "S. Lammens",
+        "position": "GK",
+        "number": 12
       },
       {
-        "name": "P. Richter",
-        "position": "DEF",
+        "name": "M. Penders",
+        "position": "GK",
         "number": 13
       },
       {
-        "name": "J. Fischer",
+        "name": "T. Castagne",
+        "position": "DEF",
+        "number": 21
+      },
+      {
+        "name": "M. De Cuyper",
         "position": "DEF",
         "number": 5
       },
       {
-        "name": "D. Schulz",
+        "name": "K. De Winter",
         "position": "DEF",
-        "number": 14
+        "number": 16
       },
       {
-        "name": "C. Wolf",
+        "name": "Z. Debast",
         "position": "DEF",
-        "number": 12
+        "number": 2
       },
       {
-        "name": "M. Weber",
-        "position": "MID",
-        "number": 21
+        "name": "B. Mechele",
+        "position": "DEF",
+        "number": 4
       },
       {
-        "name": "J. Wagner",
-        "position": "MID",
+        "name": "T. Meunier",
+        "position": "DEF",
         "number": 15
       },
       {
-        "name": "C. Neumann",
-        "position": "MID",
+        "name": "N. Ngoy",
+        "position": "DEF",
+        "number": 25
+      },
+      {
+        "name": "J. Seys",
+        "position": "DEF",
         "number": 18
       },
       {
-        "name": "P. Becker",
-        "position": "MID",
-        "number": 10
+        "name": "A. Theate",
+        "position": "DEF",
+        "number": 3
       },
       {
-        "name": "M. Becker",
+        "name": "K. De Bruyne",
+        "position": "MID",
+        "number": 7
+      },
+      {
+        "name": "A. Onana",
+        "position": "MID",
+        "number": 24
+      },
+      {
+        "name": "N. Raskin",
+        "position": "MID",
+        "number": 23
+      },
+      {
+        "name": "A. Saelemaekers",
+        "position": "FWD",
+        "number": 22
+      },
+      {
+        "name": "Y. Tielemans",
         "position": "MID",
         "number": 8
       },
       {
-        "name": "J. Becker",
-        "position": "FWD",
-        "number": 23
-      },
-      {
-        "name": "M. Klein",
+        "name": "D. Moreira",
         "position": "FWD",
         "number": 19
       },
       {
-        "name": "C. Schneider",
-        "position": "FWD",
+        "name": "H. Vanaken",
+        "position": "MID",
+        "number": 20
+      },
+      {
+        "name": "A. Witsel",
+        "position": "MID",
+        "number": 6
+      },
+      {
+        "name": "J. Doku",
+        "position": "MID",
         "number": 11
       },
       {
-        "name": "S. Schulz",
+        "name": "M. Fernandez-Pardo",
+        "position": "FWD",
+        "number": 26
+      },
+      {
+        "name": "R. Lukaku",
         "position": "FWD",
         "number": 9
+      },
+      {
+        "name": "D. Lukebakio",
+        "position": "FWD",
+        "number": 14
+      },
+      {
+        "name": "C. De Ketelaere",
+        "position": "FWD",
+        "number": 17
+      },
+      {
+        "name": "L. Trossard",
+        "position": "MID",
+        "number": 10
       }
     ]
   },
@@ -577,79 +852,154 @@ export const squads: Record<string, TeamSquad> = {
     "coach": "Jesse Marsch",
     "players": [
       {
-        "name": "M. Crépeau",
+        "name": "E. Burns",
         "position": "GK",
-        "number": 16
+        "number": 31
       },
       {
-        "name": "D. Cornelius",
-        "position": "DEF",
-        "number": 15
+        "name": "S. D&apos;Angelo",
+        "position": "GK",
+        "number": 18
       },
       {
-        "name": "A. Johnston",
-        "position": "DEF",
-        "number": 2
+        "name": "M. Dagenais",
+        "position": "GK",
+        "number": 35
       },
       {
-        "name": "A. Davies",
-        "position": "DEF",
-        "number": 19
+        "name": "K. Sheridan",
+        "position": "GK",
+        "number": 1
       },
       {
-        "name": "Moïse Bombito",
-        "position": "DEF",
-        "number": 4
-      },
-      {
-        "name": "Kamal Miller",
+        "name": "K. Buchanan",
         "position": "DEF",
         "number": 3
       },
       {
-        "name": "S. Eustáquio",
+        "name": "G. Carle",
+        "position": "DEF",
+        "number": 21
+      },
+      {
+        "name": "S. Collins",
+        "position": "DEF",
+        "number": 24
+      },
+      {
+        "name": "B. Courtnall",
+        "position": "DEF",
+        "number": 34
+      },
+      {
+        "name": "V. Gilles",
+        "position": "DEF",
+        "number": 14
+      },
+      {
+        "name": "M. Levasseur",
+        "position": "DEF",
+        "number": 28
+      },
+      {
+        "name": "M. Reid",
+        "position": "DEF",
+        "number": 33
+      },
+      {
+        "name": "J. Rose",
+        "position": "DEF",
+        "number": 12
+      },
+      {
+        "name": "J. Beckie",
+        "position": "DEF",
+        "number": 16
+      },
+      {
+        "name": "S. Zadorsky",
+        "position": "DEF",
+        "number": 20
+      },
+      {
+        "name": "S. Awujo",
+        "position": "MID",
+        "number": 13
+      },
+      {
+        "name": "J. Fleming",
+        "position": "MID",
+        "number": 17
+      },
+      {
+        "name": "J. Grosso",
         "position": "MID",
         "number": 7
       },
       {
-        "name": "Ismaël Koné",
+        "name": "E. Regan",
         "position": "MID",
-        "number": 8
+        "number": 25
       },
       {
-        "name": "J. Shaffelburg",
+        "name": "O. Smith",
+        "position": "MID",
+        "number": 10
+      },
+      {
+        "name": "C. Wickenheiser",
         "position": "MID",
         "number": 14
       },
       {
-        "name": "Jonathan Osorio",
-        "position": "MID",
-        "number": 21
-      },
-      {
-        "name": "Ali Ahmed",
-        "position": "MID",
-        "number": 22
-      },
-      {
-        "name": "Jonathan David",
+        "name": "M. Alidou",
         "position": "FWD",
-        "number": 20
+        "number": 26
       },
       {
-        "name": "Cyle Larin",
+        "name": "A. Chukwu",
+        "position": "FWD",
+        "number": 29
+      },
+      {
+        "name": "J. Huitema",
         "position": "FWD",
         "number": 9
       },
       {
-        "name": "T. Bair",
+        "name": "K. Hunter",
+        "position": "FWD",
+        "number": 30
+      },
+      {
+        "name": "C. Lacasse",
+        "position": "FWD",
+        "number": 20
+      },
+      {
+        "name": "D. Pridham",
+        "position": "FWD",
+        "number": 32
+      },
+      {
+        "name": "N. Prince",
+        "position": "FWD",
+        "number": 15
+      },
+      {
+        "name": "J. Riviere",
+        "position": "FWD",
+        "number": 8
+      },
+      {
+        "name": "É. Viens",
         "position": "FWD",
         "number": 11
       },
       {
-        "name": "T. Buchanan",
+        "name": "H. Ward",
         "position": "FWD",
-        "number": 17
+        "number": 27
       }
     ]
   },
@@ -977,79 +1327,134 @@ export const squads: Record<string, TeamSquad> = {
     "coach": "Z. Dalić",
     "players": [
       {
-        "name": "J. Schick",
+        "name": "L. Hornícek",
+        "position": "GK",
+        "number": 23
+      },
+      {
+        "name": "M. Kovár",
         "position": "GK",
         "number": 1
       },
       {
-        "name": "L. Kovačić",
-        "position": "DEF",
-        "number": 13
+        "name": "J. Stanek",
+        "position": "GK",
+        "number": 16
       },
       {
-        "name": "O. Kovačić",
-        "position": "DEF",
-        "number": 2
-      },
-      {
-        "name": "P. Brozović",
-        "position": "DEF",
-        "number": 3
-      },
-      {
-        "name": "M. Schick",
-        "position": "DEF",
-        "number": 4
-      },
-      {
-        "name": "O. Kovačić",
+        "name": "S. Chaloupek",
         "position": "DEF",
         "number": 6
       },
       {
-        "name": "J. Souček",
-        "position": "MID",
-        "number": 18
+        "name": "V. Coufal",
+        "position": "DEF",
+        "number": 5
       },
       {
-        "name": "O. Zinchenko",
-        "position": "MID",
-        "number": 17
+        "name": "T. Holes",
+        "position": "DEF",
+        "number": 3
       },
       {
-        "name": "J. Schick",
-        "position": "MID",
-        "number": 15
+        "name": "R. Hranác",
+        "position": "DEF",
+        "number": 4
       },
       {
-        "name": "P. Zinchenko",
+        "name": "D. Jurásek",
+        "position": "DEF",
+        "number": 14
+      },
+      {
+        "name": "L. Krejcí",
+        "position": "DEF",
+        "number": 7
+      },
+      {
+        "name": "J. Zelený",
+        "position": "DEF",
+        "number": 20
+      },
+      {
+        "name": "D. Zima",
+        "position": "DEF",
+        "number": 2
+      },
+      {
+        "name": "D. Doudera",
         "position": "MID",
         "number": 21
       },
       {
-        "name": "A. Mudryk",
+        "name": "L. Cerv",
         "position": "MID",
-        "number": 16
+        "number": 12
       },
       {
-        "name": "L. Brozović",
+        "name": "V. Darida",
+        "position": "MID",
+        "number": 8
+      },
+      {
+        "name": "L. Provod",
         "position": "FWD",
-        "number": 7
+        "number": 17
       },
       {
-        "name": "O. Brozović",
+        "name": "M. Sadílek",
+        "position": "MID",
+        "number": 18
+      },
+      {
+        "name": "H. Sochurek",
+        "position": "MID",
+        "number": 25
+      },
+      {
+        "name": "A. Sojka",
+        "position": "MID",
+        "number": 24
+      },
+      {
+        "name": "T. Soucek",
+        "position": "MID",
+        "number": 22
+      },
+      {
+        "name": "P. Sulc",
+        "position": "FWD",
+        "number": 15
+      },
+      {
+        "name": "T. Chorý",
         "position": "FWD",
         "number": 19
       },
       {
-        "name": "J. Dovbyk",
+        "name": "M. Chytil",
+        "position": "FWD",
+        "number": 13
+      },
+      {
+        "name": "A. Hlozek",
         "position": "FWD",
         "number": 9
       },
       {
-        "name": "L. Modrić",
+        "name": "J. Kuchta",
         "position": "FWD",
         "number": 11
+      },
+      {
+        "name": "P. Schick",
+        "position": "FWD",
+        "number": 10
+      },
+      {
+        "name": "D. Visinský",
+        "position": "MID",
+        "number": 26
       }
     ]
   },
@@ -2097,9 +2502,24 @@ export const squads: Record<string, TeamSquad> = {
     "coach": "Javier Aguirre",
     "players": [
       {
+        "name": "C. Acevedo",
+        "position": "GK",
+        "number": 12
+      },
+      {
         "name": "G. Ochoa",
         "position": "GK",
         "number": 13
+      },
+      {
+        "name": "J. Rangel",
+        "position": "GK",
+        "number": 1
+      },
+      {
+        "name": "J. Gallardo",
+        "position": "DEF",
+        "number": 23
       },
       {
         "name": "C. Montes",
@@ -2107,24 +2527,19 @@ export const squads: Record<string, TeamSquad> = {
         "number": 3
       },
       {
-        "name": "J. Vásquez",
+        "name": "I. Reyes",
         "position": "DEF",
-        "number": 5
+        "number": 15
       },
       {
         "name": "J. Sánchez",
         "position": "DEF",
-        "number": 19
-      },
-      {
-        "name": "G. Arteaga",
-        "position": "DEF",
-        "number": 6
-      },
-      {
-        "name": "J. Araujo",
-        "position": "DEF",
         "number": 2
+      },
+      {
+        "name": "J. Vásquez",
+        "position": "DEF",
+        "number": 5
       },
       {
         "name": "E. Álvarez",
@@ -2132,14 +2547,39 @@ export const squads: Record<string, TeamSquad> = {
         "number": 4
       },
       {
+        "name": "M. Chávez",
+        "position": "DEF",
+        "number": 20
+      },
+      {
+        "name": "O. Vargas",
+        "position": "MID",
+        "number": 18
+      },
+      {
         "name": "L. Chávez",
         "position": "MID",
         "number": 24
       },
       {
-        "name": "E. Sánchez",
+        "name": "Á. Fidalgo",
         "position": "MID",
-        "number": 14
+        "number": 8
+      },
+      {
+        "name": "B. Gutiérrez",
+        "position": "MID",
+        "number": 26
+      },
+      {
+        "name": "É. Lira",
+        "position": "MID",
+        "number": 6
+      },
+      {
+        "name": "G. Mora",
+        "position": "MID",
+        "number": 19
       },
       {
         "name": "O. Pineda",
@@ -2147,9 +2587,14 @@ export const squads: Record<string, TeamSquad> = {
         "number": 17
       },
       {
-        "name": "C. Rodríguez",
+        "name": "L. Romo",
         "position": "MID",
-        "number": 8
+        "number": 7
+      },
+      {
+        "name": "R. Alvarado",
+        "position": "MID",
+        "number": 25
       },
       {
         "name": "S. Giménez",
@@ -2157,19 +2602,34 @@ export const squads: Record<string, TeamSquad> = {
         "number": 11
       },
       {
-        "name": "U. Antuna",
+        "name": "A. González",
         "position": "FWD",
-        "number": 15
+        "number": 14
       },
       {
-        "name": "J. Quiñones",
-        "position": "FWD",
-        "number": 9
+        "name": "C. Huerta",
+        "position": "MID",
+        "number": 21
       },
       {
         "name": "R. Jiménez",
         "position": "FWD",
-        "number": 7
+        "number": 9
+      },
+      {
+        "name": "G. Martínez",
+        "position": "FWD",
+        "number": 22
+      },
+      {
+        "name": "J. Quiñones",
+        "position": "MID",
+        "number": 16
+      },
+      {
+        "name": "A. Vega",
+        "position": "FWD",
+        "number": 10
       }
     ]
   },
@@ -3057,79 +3517,134 @@ export const squads: Record<string, TeamSquad> = {
     "coach": "H. Regragui",
     "players": [
       {
-        "name": "C. Adingra",
+        "name": "S. Chaine",
+        "position": "GK",
+        "number": 16
+      },
+      {
+        "name": "R. Goss",
+        "position": "GK",
+        "number": 22
+      },
+      {
+        "name": "R. Williams",
         "position": "GK",
         "number": 1
       },
       {
-        "name": "V. Sarr",
+        "name": "B. Cross",
         "position": "DEF",
-        "number": 13
+        "number": 26
       },
       {
-        "name": "S. Haller",
+        "name": "S. Kabini",
         "position": "DEF",
-        "number": 4
+        "number": 18
       },
       {
-        "name": "V. Sarr",
+        "name": "O. Makhanya",
         "position": "DEF",
-        "number": 5
+        "number": 24
       },
       {
-        "name": "K. Koulibaly",
-        "position": "DEF",
-        "number": 12
-      },
-      {
-        "name": "S. Sarr",
+        "name": "M. Mbokazi",
         "position": "DEF",
         "number": 14
       },
       {
-        "name": "W. Mendy",
-        "position": "MID",
+        "name": "A. Modiba",
+        "position": "DEF",
+        "number": 6
+      },
+      {
+        "name": "K. Mudau",
+        "position": "DEF",
         "number": 20
       },
       {
-        "name": "S. Mbemba",
-        "position": "MID",
-        "number": 8
+        "name": "K. Ndamane",
+        "position": "DEF",
+        "number": 3
       },
       {
-        "name": " . N'Diaye",
-        "position": "MID",
+        "name": "I. Okon",
+        "position": "DEF",
         "number": 21
       },
       {
-        "name": "C. Adingra",
+        "name": "N. Sibisi",
+        "position": "DEF",
+        "number": 19
+      },
+      {
+        "name": "T. Matuludi",
+        "position": "DEF",
+        "number": 2
+      },
+      {
+        "name": "J. Adams",
         "position": "MID",
-        "number": 10
-      },
-      {
-        "name": "V. Sarr",
-        "position": "MID",
-        "number": 16
-      },
-      {
-        "name": "K. Gueye",
-        "position": "FWD",
-        "number": 11
-      },
-      {
-        "name": "K. N'Diaye",
-        "position": "FWD",
         "number": 23
       },
       {
-        "name": "S. Gueye",
+        "name": "T. Mbatha",
+        "position": "MID",
+        "number": 5
+      },
+      {
+        "name": "T. Mokoena",
+        "position": "MID",
+        "number": 4
+      },
+      {
+        "name": "S. Sithole",
+        "position": "MID",
+        "number": 13
+      },
+      {
+        "name": "T. Zwane",
+        "position": "MID",
+        "number": 11
+      },
+      {
+        "name": "O. Appollis",
+        "position": "FWD",
+        "number": 7
+      },
+      {
+        "name": "L. Foster",
         "position": "FWD",
         "number": 9
       },
       {
-        "name": "S. Sarr",
+        "name": "E. Makgopa",
         "position": "FWD",
-        "number": 7
+        "number": 99
+      },
+      {
+        "name": "T. Maseko",
+        "position": "FWD",
+        "number": 12
+      },
+      {
+        "name": "R. Mofokeng",
+        "position": "FWD",
+        "number": 10
+      },
+      {
+        "name": "T. Moremi",
+        "position": "MID",
+        "number": 8
+      },
+      {
+        "name": "I. Rayners",
+        "position": "FWD",
+        "number": 15
+      },
+      {
+        "name": "K. Sebelebele",
+        "position": "MID",
+        "number": 25
       }
     ]
   },
@@ -3137,79 +3652,144 @@ export const squads: Record<string, TeamSquad> = {
     "coach": "H. Moriyasu",
     "players": [
       {
-        "name": "O. Tanaka",
+        "name": "H. Sung-min",
+        "position": "GK",
+        "number": 21
+      },
+      {
+        "name": "H. Ju-Ho",
+        "position": "GK",
+        "number": 12
+      },
+      {
+        "name": "M. Hyeon-Ho",
         "position": "GK",
         "number": 1
       },
       {
-        "name": "A. Park",
+        "name": "B. Hyun-Seo",
         "position": "DEF",
-        "number": 14
+        "number": 3
       },
       {
-        "name": "M. Kim",
+        "name": "C. Woo-Jin",
         "position": "DEF",
-        "number": 13
+        "number": 3
       },
       {
-        "name": "O. Tanaka",
+        "name": "J. Seok-Hwan",
         "position": "DEF",
-        "number": 12
+        "number": 22
       },
       {
-        "name": "A. Lee",
+        "name": "J. Hyun-Tae",
+        "position": "DEF",
+        "number": 4
+      },
+      {
+        "name": "K. Min-Jun",
+        "position": "DEF",
+        "number": 2
+      },
+      {
+        "name": "L. Chan-Ouk",
         "position": "DEF",
         "number": 6
       },
       {
-        "name": "D. Taremi",
+        "name": "L. Geon-hee",
+        "position": "DEF",
+        "number": 19
+      },
+      {
+        "name": "L. Hyeon-yong",
         "position": "DEF",
         "number": 5
       },
       {
-        "name": "O. Kim",
-        "position": "MID",
-        "number": 21
-      },
-      {
-        "name": "M. Park",
-        "position": "MID",
-        "number": 17
-      },
-      {
-        "name": "M. Ito",
-        "position": "MID",
+        "name": "P. Jun-seo",
+        "position": "DEF",
         "number": 20
       },
       {
-        "name": "M. Lee",
+        "name": "S. Min-Ha",
+        "position": "DEF",
+        "number": 23
+      },
+      {
+        "name": "J. Ji-Hun",
+        "position": "MID",
+        "number": 11
+      },
+      {
+        "name": "K. Sang-Yoon",
+        "position": "MID",
+        "number": 10
+      },
+      {
+        "name": "K. Dong-Jin",
+        "position": "MID",
+        "number": 8
+      },
+      {
+        "name": "K. Han-seo",
         "position": "MID",
         "number": 16
       },
       {
-        "name": "M. Tanaka",
+        "name": "L. Hyun-Yong",
         "position": "MID",
+        "number": 5
+      },
+      {
+        "name": "B. Ga-On",
+        "position": "FWD",
         "number": 15
       },
       {
-        "name": "M. Afif",
+        "name": "H. Yun-Sang",
+        "position": "FWD",
+        "number": 10
+      },
+      {
+        "name": "J. Jae-Sang",
+        "position": "FWD",
+        "number": 18
+      },
+      {
+        "name": "J. Seung-Bae",
+        "position": "FWD",
+        "number": 14
+      },
+      {
+        "name": "K. Seong-Jin",
         "position": "FWD",
         "number": 7
       },
       {
-        "name": "M. Watanabe",
+        "name": "K. Do-Hyun",
+        "position": "FWD",
+        "number": 13
+      },
+      {
+        "name": "T. Kim",
         "position": "FWD",
         "number": 9
       },
       {
-        "name": "H. Shomurodov",
+        "name": "K. Yong-Hak",
         "position": "FWD",
-        "number": 11
+        "number": 17
       },
       {
-        "name": "D. Azmoun",
+        "name": "L. Young-Jun",
         "position": "FWD",
-        "number": 19
+        "number": 6
+      },
+      {
+        "name": "P. Seung-Ho",
+        "position": "FWD",
+        "number": 18
       }
     ]
   },
