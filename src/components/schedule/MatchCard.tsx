@@ -37,8 +37,8 @@ export function MatchCard({ match }: { match: Match }) {
   const groupText = match.stage === 'GROUP' ? `Group ${match.group}` : '';
   const subtitle = [match.stage === 'GROUP' ? groupText : '', stageText].filter(Boolean).join(' · ');
 
-  const homeGoals = match.status === 'FINISHED' ? parseScorers(match.homeScorers) : [];
-  const awayGoals = match.status === 'FINISHED' ? parseScorers(match.awayScorers) : [];
+  const homeGoals = parseScorers(match.homeScorers);
+  const awayGoals = parseScorers(match.awayScorers);
   const hasScorers = homeGoals.length > 0 || awayGoals.length > 0;
 
   return (

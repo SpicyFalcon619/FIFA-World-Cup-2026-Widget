@@ -67,31 +67,21 @@ export interface ScorerEntry {
  *   "null" or "" (no scorers)
  */
 export function parseScorers(raw: string): Array<{ name: string; minute: string }> {
-  if (!raw || raw === 'null' || raw.trim() === '' || raw.trim() === '{}') return [];
-  // Strip outer { }
-  const inner = raw.replace(/^\{/, '').replace(/\}$/, '').trim();
-  if (!inner) return [];
-
-  const results: Array<{ name: string; minute: string }> = [];
-
-  // Split on ," treating each "..." or “...” entry as a token
-  // The format is: "entry1","entry2",... or “entry1”,”entry2”,...
-  const entryRegex = /["“”]([^"“”]+)["“”]/g;
-  let m: RegExpExecArray | null;
-  while ((m = entryRegex.exec(inner)) !== null) {
-    const entry = m[1].trim(); // e.g. "J. Quiñones 9'"
-    if (!entry || entry === ',') continue;
-    // Extract trailing minute: digits followed by '
-    const minMatch = entry.match(/(\d+)'\s*$/);
-    if (minMatch) {
-      const minuteStr = minMatch[1] + "'";
-      const name = entry.slice(0, entry.lastIndexOf(minMatch[0])).trim();
-      results.push({ name: name || entry, minute: minuteStr });
-    } else {
-      results.push({ name: entry, minute: '' });
-    }
-  }
-  return results;
+  if (!raw || raw.trim() === 'null') return [];
+  const cleaned = raw.replace(/^\{/, '').replace(/\}$/, '');
+  if (!cleaned) return [];
+  
+  const normalized = cleaned.replace(/[“”]/g, '"');
+  const parts = normalized.split(/","|",\s*"/).map(s => s.replace(/"/g, '').trim());
+  
+  return parts.map(p => {
+    const spaceIdx = p.lastIndexOf(' ');
+    if (spaceIdx === -1) return { name: p, minute: '' };
+    return {
+      name: p.slice(0, spaceIdx).trim(),
+      minute: p.slice(spaceIdx + 1).trim()
+    };
+  });
 }
 
 // --- Store Shape ---

@@ -35,7 +35,8 @@ pub async fn fetch_and_emit(handle: &tauri::AppHandle) -> Result<(), Box<dyn std
                 let mut parsed_matches = Vec::new();
                 for game in payload.games {
                     if game.finished.to_lowercase() != "true" && game.time_elapsed != "notstarted" {
-                        let minute = game.time_elapsed.parse::<u8>().ok();
+                        let minute_str = game.time_elapsed.replace("'", "");
+                        let minute = minute_str.parse::<u8>().ok();
 
                         let home_flag = team_map.get(&game.home_team_id).cloned().unwrap_or_default();
                         let away_flag = team_map.get(&game.away_team_id).cloned().unwrap_or_default();
