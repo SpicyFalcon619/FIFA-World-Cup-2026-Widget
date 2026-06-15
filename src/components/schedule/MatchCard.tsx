@@ -1,6 +1,5 @@
 import { Match, useWC2026Store, parseScorers } from '../../store/wc2026Store';
 import { CountdownBadge } from './CountdownBadge';
-import { MinuteClock } from '../scoreboard/MinuteClock';
 import { ChevronRight } from 'lucide-react';
 
 const PlaceholderCrest = () => (
