@@ -247,27 +247,43 @@ function LineupsTab({ stats }: { stats: GeneratedMatchStats }) {
   );
 }
 
-function StatsTab({ stats }: { stats: GeneratedMatchStats }) {
+function StatsTab({ match }: { match: import('../../store/wc2026Store').Match }) {
+  const stats = [
+    { label: 'POSSESSION', home: match.homePossession || '0', away: match.awayPossession || '0' },
+    { label: 'SHOTS', home: match.homeShots || '0', away: match.awayShots || '0' },
+    { label: 'SHOTS ON TARGET', home: match.homeShotsOnTarget || '0', away: match.awayShotsOnTarget || '0' },
+    { label: 'CORNERS', home: match.homeCorners || '0', away: match.awayCorners || '0' },
+    { label: 'FOULS', home: match.homeFouls || '0', away: match.awayFouls || '0' },
+    { label: 'YELLOW CARDS', home: match.homeYellowCards.toString(), away: match.awayYellowCards.toString() },
+    { label: 'RED CARDS', home: match.homeRedCards.toString(), away: match.awayRedCards.toString() },
+  ];
+
   return (
     <div className="flex flex-col gap-3.5 px-1 py-1">
-      {stats.stats.map(item => {
-        const hValStr = item.home.toString();
-        const aValStr = item.away.toString();
+      {stats.map(item => {
+        let homeVal = parseFloat(item.home) || 0;
+        let awayVal = parseFloat(item.away) || 0;
+        const total = homeVal + awayVal;
+        
+        // If both 0, show 50/50 bar visually
+        const homePercent = total === 0 ? 50 : (homeVal / total) * 100;
+        const awayPercent = total === 0 ? 50 : (awayVal / total) * 100;
+
         return (
           <div key={item.label} className="flex flex-col gap-1">
             <div className="flex justify-between items-center text-xs font-semibold">
-              <span className="tabular-nums text-white/90">{hValStr}</span>
+              <span className="tabular-nums text-white/90">{item.home}{item.label === 'POSSESSION' && item.home !== '0' ? '%' : ''}</span>
               <span className="text-[10px] font-bold text-white/35 uppercase tracking-wider">{item.label}</span>
-              <span className="tabular-nums text-white/90">{aValStr}</span>
+              <span className="tabular-nums text-white/90">{item.away}{item.label === 'POSSESSION' && item.away !== '0' ? '%' : ''}</span>
             </div>
             <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden flex">
               <div 
                 className="h-full bg-[var(--accent-gold)] transition-all duration-500"
-                style={{ width: `${item.homePercent}%` }}
+                style={{ width: `${homePercent}%` }}
               />
               <div 
                 className="h-full bg-white/40 transition-all duration-500"
-                style={{ width: `${item.awayPercent}%` }}
+                style={{ width: `${awayPercent}%` }}
               />
             </div>
           </div>
@@ -407,7 +423,7 @@ export function MatchDetailSheet() {
                 )}
                 <span className="text-[11px] font-bold tracking-widest text-white/45 uppercase">
                   {selectedMatch.status === 'LIVE' 
-                    ? `Live Match · ${selectedMatch.minute}'` 
+                    ? `Live Match · ${selectedMatch.matchState === 'Halftime' ? 'HT' : selectedMatch.displayClock || "0'"}` 
                     : selectedMatch.status === 'FINISHED' 
                       ? 'Match Result' 
                       : 'Match Preview'}
@@ -539,7 +555,7 @@ export function MatchDetailSheet() {
 
               {!isTBD && activeTab === 'lineups' && matchStats && <LineupsTab stats={matchStats} />}
 
-              {!isTBD && activeTab === 'stats' && hasTimelineAndStats && matchStats && <StatsTab stats={matchStats} />}
+              {!isTBD && activeTab === 'stats' && hasTimelineAndStats && <StatsTab match={selectedMatch} />}
 
               {!isTBD && activeTab === 'timeline' && hasTimelineAndStats && matchStats && <TimelineTab stats={matchStats} />}
             </div>

@@ -11,7 +11,7 @@ interface GoalEventPayload {
   home_score: number;
   away_score: number;
   scoring_team: string;
-  minute: number;
+  display_clock: string;
 }
 
 export function useTauriEvents() {
@@ -35,12 +35,12 @@ export function useTauriEvents() {
         await listen<Match[]>('live-scores-update', (e) => setLiveGames(e.payload)),
         await listen<GoalEventPayload>('goal-event', async (e) => {
           const payload = e.payload;
-          setGoalEvent({ matchId: payload.match_id, team: payload.scoring_team, minute: payload.minute });
+          setGoalEvent({ matchId: payload.match_id, team: payload.scoring_team, minute: 0 });
           
           if (await isPermissionGranted()) {
             sendNotification({
               title: `GOAL! ${payload.scoring_team} scored! ⚽`,
-              body: `${payload.home_team} ${payload.home_score} - ${payload.away_score} ${payload.away_team} (${payload.minute}')`
+              body: `${payload.home_team} ${payload.home_score} - ${payload.away_score} ${payload.away_team} (${payload.display_clock})`
             });
           }
         }),

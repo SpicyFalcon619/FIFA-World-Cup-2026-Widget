@@ -80,7 +80,11 @@ export function MatchCard({ match }: { match: Match }) {
               <span className="text-xl font-bold tracking-widest">
                 {match.homeScore ?? 0} - {match.awayScore ?? 0}
               </span>
-              {match.status === 'LIVE' && <MinuteClock minute={match.minute} />}
+              {match.status === 'LIVE' && (
+                <div className="text-[10px] font-mono text-red-400 font-bold mt-1 bg-red-500/10 px-2 py-0.5 rounded animate-pulse">
+                  {match.matchState === 'Halftime' ? 'HT' : match.displayClock || "LIVE"}
+                </div>
+              )}
             </div>
           )}
         </div>

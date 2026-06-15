@@ -95,3 +95,124 @@ pub struct WcGroupTeam {
     pub ga: String,
     pub gd: String,
 }
+
+// ------------------------------------
+// New Models for ESPN Scoreboard API
+// ------------------------------------
+
+#[derive(Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct EspnScoreboard {
+    pub events: Vec<EspnEvent>,
+}
+
+#[derive(Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct EspnEvent {
+    pub id: String,
+    pub date: String,
+    pub name: String,
+    pub short_name: String,
+    pub competitions: Vec<EspnCompetition>,
+    pub status: EspnStatus,
+}
+
+#[derive(Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct EspnCompetition {
+    pub id: String,
+    pub date: String,
+    pub competitors: Vec<EspnCompetitor>,
+    #[serde(default)]
+    pub details: Vec<EspnDetail>,
+}
+
+#[derive(Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct EspnCompetitor {
+    pub id: String,
+    pub home_away: String,
+    pub score: String,
+    pub team: EspnTeam,
+    #[serde(default)]
+    pub statistics: Vec<EspnStatistic>,
+}
+
+#[derive(Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct EspnTeam {
+    pub id: String,
+    pub name: String,
+    pub abbreviation: String,
+    pub display_name: String,
+    pub short_display_name: String,
+    #[serde(default)]
+    pub logo: String,
+}
+
+#[derive(Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct EspnStatistic {
+    pub name: String,
+    pub display_value: String,
+}
+
+#[derive(Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct EspnStatus {
+    pub clock: f64,
+    pub display_clock: String,
+    pub period: u32,
+    #[serde(rename = "type")]
+    pub status_type: EspnStatusType,
+}
+
+#[derive(Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct EspnStatusType {
+    pub id: String,
+    pub name: String,
+    pub state: String,
+    pub completed: bool,
+    pub description: String,
+    pub detail: String,
+    pub short_detail: String,
+}
+
+#[derive(Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct EspnDetail {
+    #[serde(rename = "type")]
+    pub detail_type: EspnDetailType,
+    pub clock: EspnClock,
+    pub team: EspnTeamRef,
+    pub athletes_involved: Option<Vec<EspnAthlete>>,
+}
+
+#[derive(Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct EspnDetailType {
+    pub id: String,
+    pub text: String,
+}
+
+#[derive(Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct EspnClock {
+    pub value: f64,
+    pub display_value: String,
+}
+
+#[derive(Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct EspnTeamRef {
+    pub id: String,
+}
+
+#[derive(Deserialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct EspnAthlete {
+    pub id: String,
+    pub display_name: String,
+    pub short_name: String,
+}

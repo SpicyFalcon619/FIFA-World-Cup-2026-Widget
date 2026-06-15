@@ -1,12 +1,18 @@
 use tauri::Manager;
 use tauri::Emitter;
-use crate::models::api_response::{WcGamesResponse, WcTeamsResponse};
+use crate::models::api_response::{EspnScoreboard, WcTeamsResponse};
 use crate::models::match_model::{Match, MatchStatus};
+
+fn get_stat<'a>(stats: &'a [crate::models::api_response::EspnStatistic], name: &str) -> Option<String> {
+    stats.iter()
+        .find(|s| s.name == name)
+        .map(|s| s.display_value.clone())
+}
 
 pub async fn fetch_and_emit(handle: &tauri::AppHandle) -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
     let client = reqwest::Client::new();
     
-    // Fetch Teams
+    // Fetch Teams from old API purely for flags
     let teams_res = client
         .get("https://worldcup26.ir/get/teams")
         .send()
@@ -16,14 +22,15 @@ pub async fn fetch_and_emit(handle: &tauri::AppHandle) -> Result<(), Box<dyn std
     if let Ok(res) = teams_res {
         if let Ok(payload) = res.json::<WcTeamsResponse>().await {
             for team in payload.teams {
-                team_map.insert(team.id, team.flag);
+                team_map.insert(team.name_en.to_lowercase(), team.flag);
             }
         }
     }
 
-    // Fetch Games
+    // Fetch Games from ESPN API
+    // We only fetch today's live/scheduled/finished games on the scoreboard
     let games_res = client
-        .get("https://worldcup26.ir/get/games")
+        .get("https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard")
         .send()
         .await;
 
@@ -31,48 +38,96 @@ pub async fn fetch_and_emit(handle: &tauri::AppHandle) -> Result<(), Box<dyn std
 
     if let Ok(res) = games_res {
         if res.status().is_success() {
-            if let Ok(payload) = res.json::<WcGamesResponse>().await {
+            if let Ok(payload) = res.json::<EspnScoreboard>().await {
                 let mut parsed_matches = Vec::new();
-                for game in payload.games {
-                    if game.finished.to_lowercase() != "true" && game.time_elapsed != "notstarted" {
-                        let minute_str = game.time_elapsed.replace("'", "");
-                        let minute = minute_str.parse::<u8>().ok();
+                for event in payload.events {
+                    if let Some(competition) = event.competitions.first() {
+                        if competition.competitors.len() >= 2 {
+                            let home = competition.competitors.iter().find(|c| c.home_away == "home").unwrap_or(&competition.competitors[0]);
+                            let away = competition.competitors.iter().find(|c| c.home_away == "away").unwrap_or(&competition.competitors[1]);
 
-                        let home_flag = team_map.get(&game.home_team_id).cloned().unwrap_or_default();
-                        let away_flag = team_map.get(&game.away_team_id).cloned().unwrap_or_default();
+                            let home_flag = team_map.get(&home.team.name.to_lowercase()).cloned().unwrap_or_default();
+                            let away_flag = team_map.get(&away.team.name.to_lowercase()).cloned().unwrap_or_default();
 
-                        let stage = match game.match_type.to_lowercase().as_str() {
-                            "group" => "GROUP",
-                            "r32" => "R32",
-                            "r16" => "R16",
-                            "qf" => "QF",
-                            "sf" => "SF",
-                            "third" => "THIRD",
-                            "final" => "F",
-                            _ => "F",
-                        }.to_string();
+                            let status = match event.status.status_type.state.as_str() {
+                                "in" => MatchStatus::Live,
+                                "pre" => MatchStatus::Scheduled,
+                                "post" => MatchStatus::Finished,
+                                _ => MatchStatus::Scheduled,
+                            };
 
-                        parsed_matches.push(Match {
-                            id: game.id.parse().unwrap_or(0),
-                            home_team: game.home_team_name_en.clone().or(game.home_team_label.clone()).unwrap_or_else(|| "TBD".to_string()),
-                            away_team: game.away_team_name_en.clone().or(game.away_team_label.clone()).unwrap_or_else(|| "TBD".to_string()),
-                            home_flag,
-                            away_flag,
-                            utc_kickoff: game.local_date,
-                            local_kickoff: String::new(),
-                            status: MatchStatus::Live,
-                            minute,
-                            home_score: game.home_score.parse().ok(),
-                            away_score: game.away_score.parse().ok(),
-                            home_red_cards: 0,
-                            away_red_cards: 0,
-                            group: game.group.clone(),
-                            stage,
-                            home_scorers: game.home_scorers.clone(),
-                            away_scorers: game.away_scorers.clone(),
-                            stadium_id: game.stadium_id.parse().unwrap_or(0),
-                            matchday: game.matchday.parse().unwrap_or(0),
-                        });
+                            let display_clock = event.status.display_clock.clone();
+                            let match_state = event.status.status_type.description.clone();
+
+                            // Calculate red/yellow cards
+                            let mut home_red_cards = 0;
+                            let mut home_yellow_cards = 0;
+                            let mut away_red_cards = 0;
+                            let mut away_yellow_cards = 0;
+                            
+                            let mut home_scorers = String::new();
+                            let mut away_scorers = String::new();
+
+                            for detail in &competition.details {
+                                let is_home = detail.team.id == home.team.id;
+                                let is_away = detail.team.id == away.team.id;
+                                
+                                if detail.detail_type.text.contains("Red Card") {
+                                    if is_home { home_red_cards += 1; }
+                                    if is_away { away_red_cards += 1; }
+                                } else if detail.detail_type.text.contains("Yellow Card") {
+                                    if is_home { home_yellow_cards += 1; }
+                                    if is_away { away_yellow_cards += 1; }
+                                } else if detail.detail_type.text.contains("Goal") {
+                                    let athlete = detail.athletes_involved.as_ref().and_then(|a| a.first()).map(|a| a.short_name.clone()).unwrap_or_else(|| "Unknown".to_string());
+                                    let goal_str = format!("{} {}", athlete, detail.clock.display_value);
+                                    if is_home {
+                                        if !home_scorers.is_empty() { home_scorers.push_str(", "); }
+                                        home_scorers.push_str(&goal_str);
+                                    }
+                                    if is_away {
+                                        if !away_scorers.is_empty() { away_scorers.push_str(", "); }
+                                        away_scorers.push_str(&goal_str);
+                                    }
+                                }
+                            }
+
+                            parsed_matches.push(Match {
+                                id: event.id.parse().unwrap_or(0),
+                                home_team: home.team.name.clone(),
+                                away_team: away.team.name.clone(),
+                                home_flag,
+                                away_flag,
+                                utc_kickoff: event.date.clone(),
+                                local_kickoff: String::new(),
+                                status,
+                                minute: None, // We will use display_clock exclusively now
+                                display_clock: Some(display_clock),
+                                match_state: Some(match_state),
+                                home_score: home.score.parse().ok(),
+                                away_score: away.score.parse().ok(),
+                                home_red_cards,
+                                away_red_cards,
+                                home_yellow_cards,
+                                away_yellow_cards,
+                                home_possession: get_stat(&home.statistics, "possessionPct"),
+                                away_possession: get_stat(&away.statistics, "possessionPct"),
+                                home_shots: get_stat(&home.statistics, "totalShots"),
+                                away_shots: get_stat(&away.statistics, "totalShots"),
+                                home_shots_on_target: get_stat(&home.statistics, "shotsOnTarget"),
+                                away_shots_on_target: get_stat(&away.statistics, "shotsOnTarget"),
+                                home_corners: get_stat(&home.statistics, "wonCorners"),
+                                away_corners: get_stat(&away.statistics, "wonCorners"),
+                                home_fouls: get_stat(&home.statistics, "foulsCommitted"),
+                                away_fouls: get_stat(&away.statistics, "foulsCommitted"),
+                                group: "Group Stage".to_string(),
+                                stage: "GROUP".to_string(),
+                                home_scorers,
+                                away_scorers,
+                                stadium_id: 0,
+                                matchday: 1,
+                            });
+                        }
                     }
                 }
 
@@ -97,7 +152,7 @@ pub async fn fetch_and_emit(handle: &tauri::AppHandle) -> Result<(), Box<dyn std
                                     home_score: u8,
                                     away_score: u8,
                                     scoring_team: String,
-                                    minute: u8,
+                                    display_clock: String,
                                 }
                                 
                                 let scoring_team = if new_h > old_h { &current_game.home_team } else { &current_game.away_team };
@@ -109,7 +164,7 @@ pub async fn fetch_and_emit(handle: &tauri::AppHandle) -> Result<(), Box<dyn std
                                     home_score: new_h,
                                     away_score: new_a,
                                     scoring_team: scoring_team.to_string(),
-                                    minute: current_game.minute.unwrap_or(0),
+                                    display_clock: current_game.display_clock.clone().unwrap_or_default(),
                                 };
                                 
                                 let _ = handle.emit("goal-event", &event);

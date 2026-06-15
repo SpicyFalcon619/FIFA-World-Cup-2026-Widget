@@ -166,7 +166,10 @@ export function CompactLiveWidget({ onExpand }: CompactWidgetProps) {
   const match = liveGames[Math.min(currentIndex, liveGames.length - 1)];
   if (!match) return null;
 
-  const minute = match.minute != null ? `${match.minute}'` : '';
+  const minuteStr = match.matchState === 'Halftime' ? 'HT' 
+    : match.matchState === 'Full Time' ? 'FT' 
+    : match.displayClock ? match.displayClock 
+    : '';
 
   return (
     <div className="flex flex-col h-full w-full relative overflow-hidden bg-transparent">
@@ -179,22 +182,24 @@ export function CompactLiveWidget({ onExpand }: CompactWidgetProps) {
       <div className="flex items-center justify-between px-3 pt-2.5 pb-0 relative z-10">
         <div className="flex items-center gap-2">
           {/* Live badge */}
-          <div className="flex items-center gap-1">
-            <div className="w-1.5 h-1.5 rounded-full" style={{
-              background: '#ef4444',
-              boxShadow: pulse ? '0 0 6px #ef4444, 0 0 12px rgba(239,68,68,0.4)' : '0 0 2px #ef4444',
-              transition: 'box-shadow 0.45s ease',
-            }} />
-            <span className="text-[9px] font-black tracking-[0.18em] uppercase" style={{ color: '#ef4444' }}>Live</span>
-          </div>
+          {match.status === 'LIVE' && (
+            <div className="flex items-center gap-1">
+              <div className="w-1.5 h-1.5 rounded-full" style={{
+                background: '#ef4444',
+                boxShadow: pulse ? '0 0 6px #ef4444, 0 0 12px rgba(239,68,68,0.4)' : '0 0 2px #ef4444',
+                transition: 'box-shadow 0.45s ease',
+              }} />
+              <span className="text-[9px] font-black tracking-[0.18em] uppercase" style={{ color: '#ef4444' }}>Live</span>
+            </div>
+          )}
           {/* Stage badge */}
           <span className="text-[8px] font-bold uppercase tracking-wider text-white/30">
             {formatStage(match.stage, match.group)}
           </span>
         </div>
         <div className="flex items-center gap-1">
-          {minute && (
-            <span className="font-mono text-[10px] font-bold text-white/50 mr-1">{minute}</span>
+          {minuteStr && (
+            <span className="font-mono text-[10px] font-bold text-white/50 mr-1">{minuteStr}</span>
           )}
           <button onClick={() => setIsAlwaysOnTop(!isAlwaysOnTop)} title={isAlwaysOnTop ? "Unpin from Top" : "Keep on Top"} className={`w-5 h-5 flex items-center justify-center rounded-md transition-colors ${isAlwaysOnTop ? 'text-[#F5B800] bg-white/10' : 'text-white/30 hover:text-white/80 hover:bg-white/8'}`}>
             <Pin size={10} fill={isAlwaysOnTop ? 'currentColor' : 'none'} />

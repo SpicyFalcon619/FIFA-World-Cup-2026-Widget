@@ -13,13 +13,27 @@ export interface Match {
   localKickoff: string;
   status: 'SCHEDULED' | 'LIVE' | 'PAUSED' | 'FINISHED';
   minute: number | null;
+  displayClock: string | null;
+  matchState: string | null;
   homeScore: number | null;
   awayScore: number | null;
   homeRedCards: number;
   awayRedCards: number;
+  homeYellowCards: number;
+  awayYellowCards: number;
+  homePossession: string | null;
+  awayPossession: string | null;
+  homeShots: string | null;
+  awayShots: string | null;
+  homeShotsOnTarget: string | null;
+  awayShotsOnTarget: string | null;
+  homeCorners: string | null;
+  awayCorners: string | null;
+  homeFouls: string | null;
+  awayFouls: string | null;
   group: string;
   stage: 'GROUP' | 'R32' | 'R16' | 'QF' | 'SF' | 'THIRD' | 'F';
-  homeScorers: string;   // raw API string e.g. '{"J. Quiñones 9\'","R. Jiménez 67\'"}'
+  homeScorers: string;
   awayScorers: string;
   stadiumId: number;
   matchday: number;
